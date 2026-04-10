@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hotel Alhambra</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Jost', sans-serif;
+  color: #2C2C2A;
+  background: #FAF9F6;
+}
+
+/* ── NAV ── */
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 48px;
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 10;
+  background: rgba(0,0,0,0.18);
+  backdrop-filter: blur(4px);
+}
+
+.nav-links {
+  display: flex;
+  gap: 32px;
+  list-style: none;
+}
+
+.nav-links a {
+  color: #F5F0E8;
+  text-decoration: none;
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  font-weight: 400;
+  opacity: 0.88;
+  transition: opacity 0.2s;
+}
+.nav-links a:hover { opacity: 1; }
+
+.nav-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 30px;
+  color: #F5F0E8;
+  font-weight: 300;
+  letter-spacing: 6px;
+}
+
+.nav-icons { display: flex; gap: 18px; align-items: center; }
+.nav-icon { width: 18px; height: 18px; stroke: #F5F0E8; fill: none; stroke-width: 1.5; cursor: pointer; }
+
+/* ── HERO ── */
+.hero {
+  position: relative;
+  height: 100vh;
+  min-height: 600px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 64px;
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to bottom, rgba(10,8,5,0.55) 0%, rgba(10,8,5,0.1) 50%, rgba(10,8,5,0.65) 100%),
+    url('https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1600&q=80') center/cover no-repeat;
+}
+
+/* ── BOOKING BAR ── */
+.booking-bar {
+  position: relative;
+  z-index: 5;
+  background: rgba(250,249,246,0.97);
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+  box-shadow: 0 24px 70px rgba(0,0,0,0.4);
+  width: min(720px, 92vw);
+}
+
+.booking-field {
+  flex: 1;
+  padding: 18px 24px;
+  border-right: 0.5px solid #D3D1C7;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.booking-field:hover { background: #F1EFE8; }
+
+.booking-label {
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #888780;
+  font-weight: 500;
+}
+
+.booking-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px;
+  color: #2C2C2A;
+  font-weight: 400;
+}
+
+.booking-btn {
+  background: #B8860B;
+  color: #FAF9F6;
+  border: none;
+  padding: 0 34px;
+  font-family: 'Jost', sans-serif;
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  min-width: 130px;
+}
+.booking-btn:hover { background: #9A7209; }
+
+/* ── ORNAMENT ── */
+.ornament {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 0 36px;
+  gap: 8px;
+}
+.ornament-line { width: 1px; height: 38px; background: linear-gradient(to bottom, transparent, #B8860B, transparent); }
+.ornament-diamond { width: 6px; height: 6px; background: #B8860B; transform: rotate(45deg); }
+
+/* ── TERMS ── */
+.terms-section {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 0 32px 90px;
+}
+
+.terms-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px;
+  font-weight: 300;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #2C2C2A;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.terms-intro {
+  font-size: 13.5px;
+  color: #5F5E5A;
+  line-height: 1.85;
+  font-style: italic;
+  text-align: center;
+  margin-bottom: 44px;
+}
+
+.terms-article { margin-bottom: 30px; }
+
+.terms-article h3 {
+  font-family: 'Jost', sans-serif;
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: #B8860B;
+  margin-bottom: 10px;
+}
+
+.terms-article p {
+  font-size: 13.5px;
+  line-height: 1.88;
+  color: #444441;
+}
+
+/* ── FOOTER ── */
+footer { background: #2C2C2A; color: #B4B2A9; }
+
+.footer-top {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 48px;
+  padding: 56px 64px 40px;
+  border-bottom: 0.5px solid #444441;
+}
+
+.footer-logo-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 32px;
+}
+
+.footer-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px;
+  color: #D3D1C7;
+  font-weight: 300;
+  letter-spacing: 8px;
+  margin-bottom: 10px;
+}
+
+.footer-tagline {
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #888780;
+  text-align: center;
+}
+
+.footer-col h4 {
+  font-size: 9px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #888780;
+  margin-bottom: 14px;
+  font-weight: 500;
+}
+
+.footer-col p, .footer-col a {
+  font-size: 12.5px;
+  color: #B4B2A9;
+  line-height: 2.1;
+  text-decoration: none;
+  display: block;
+  transition: color 0.15s;
+}
+.footer-col a:hover { color: #D3D1C7; }
+
+.newsletter-row { display: flex; margin-top: 10px; }
+
+.newsletter-input {
+  flex: 1;
+  background: #3a3a38;
+  border: 0.5px solid #5F5E5A;
+  border-right: none;
+  padding: 10px 14px;
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  color: #D3D1C7;
+  outline: none;
+}
+.newsletter-input::placeholder { color: #5F5E5A; }
+
+.newsletter-btn {
+  background: #B8860B;
+  border: none;
+  padding: 10px 18px;
+  color: #FAF9F6;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-family: 'Jost', sans-serif;
+  transition: background 0.2s;
+}
+.newsletter-btn:hover { background: #9A7209; }
+
+.footer-social { display: flex; gap: 12px; margin-top: 18px; }
+
+.social-icon {
+  width: 30px;
+  height: 30px;
+  border: 0.5px solid #5F5E5A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #B4B2A9;
+  text-decoration: none;
+  font-size: 11px;
+  font-family: 'Jost', sans-serif;
+  transition: all 0.15s;
+}
+.social-icon:hover { border-color: #B8860B; color: #B8860B; }
+
+.footer-nav {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  padding: 22px 64px;
+  border-bottom: 0.5px solid #444441;
+  flex-wrap: wrap;
+}
+
+.footer-nav a {
+  font-size: 9px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #888780;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.footer-nav a:hover { color: #D3D1C7; }
+
+.footer-bottom {
+  text-align: center;
+  padding: 20px;
+  font-size: 10.5px;
+  color: #5F5E5A;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 640px) {
+  nav { padding: 16px 20px; }
+  .nav-links { display: none; }
+  .hero { padding-bottom: 40px; }
+  .booking-bar { flex-direction: column; width: 92vw; }
+  .booking-field { border-right: none; border-bottom: 0.5px solid #D3D1C7; }
+  .booking-btn { padding: 18px; }
+  .footer-top { grid-template-columns: 1fr; padding: 40px 24px 32px; gap: 28px; }
+  .footer-nav { gap: 18px; padding: 20px 24px; }
+  .footer-bottom { padding: 16px 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <ul class="nav-links">
+    <li><a href="#">Hébergement</a></li>
+    <li><a href="#">Restaurants</a></li>
+  </ul>
+  <div class="nav-logo">H</div>
+  <ul class="nav-links">
+    <li><a href="#">À propos de nous</a></li>
+    <li><a href="#">Contactez-nous</a></li>
+  </ul>
+  <div class="nav-icons">
+    <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <svg class="nav-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="booking-bar">
+    <div class="booking-field">
+      <span class="booking-label">Arrivée</span>
+      <span class="booking-value">27 February 2026</span>
+    </div>
+    <div class="booking-field">
+      <span class="booking-label">Départ</span>
+      <span class="booking-value">28 February 2026</span>
+    </div>
+    <div class="booking-field" style="border-right: none;">
+      <span class="booking-label">Chambres &amp; Hôtes</span>
+      <span class="booking-value">1 Chambre · 2 Adultes</span>
+    </div>
+    <button class="booking-btn">Book Now</button>
+  </div>
+</div>
+
+<!-- ORNAMENT -->
+<div class="ornament">
+  <div class="ornament-line"></div>
+  <div class="ornament-diamond"></div>
+  <div class="ornament-line"></div>
+</div>
+
+<!-- TERMS SECTION -->
+<section class="terms-section">
+  <h1 class="terms-title">Conditions générales d'utilisation de notre site</h1>
+  <p class="terms-intro">Bienvenue sur le site de l'Hôtel Alhambra. En accédant ou en utilisant notre site, vous acceptez les conditions d'utilisation suivantes.</p>
+
+  <div class="terms-article">
+    <h3>Informations générales</h3>
+    <p>Le site accessible à cette adresse est exploité par ELITE HOSPITALITY MANAGEMENT, Hôtel Selman Marrakech, situé Km 5, Route d'Amizmiz, Marrakech 40160, Maroc, enregistré sous le numéro 54395. L'utilisation de ce site est régie par les présentes conditions.</p>
+  </div>
+
+  <div class="terms-article">
+    <h3>Propriété intellectuelle</h3>
+    <p>Tout le contenu de ce site, y compris mais sans s'y limiter les textes, images, graphismes, logos, icônes, clips audio et vidéo, logiciels et autres matériaux est la propriété exclusive d'ELITE HOSPITALITY MANAGEMENT. Toute reproduction ou utilisation à des fins commerciales est strictement interdite sans autorisation écrite préalable.</p>
+  </div>
+
+  <div class="terms-article">
+    <h3>Utilisation du site</h3>
+    <p>Vous vous engagez à n'utiliser ce site qu'à des fins légales et conformément aux présentes conditions. Il vous est notamment interdit d'utiliser ce site de manière illégale, de perturber son fonctionnement, ou d'accéder à des zones sécurisées ou non publiques.</p>
+  </div>
+
+  <div class="terms-article">
+    <h3>Accès et sécurité</h3>
+    <p>L'accès à notre site est autorisé à titre provisoire. Nous nous réservons le droit de retirer ou de modifier le service que nous fournissons sur notre site sans préavis. Tout identifiant de sécurité qui vous est attribué doit être traité comme confidentiel et ne doit pas être divulgué à des tiers.</p>
+  </div>
+
+  <div class="terms-article">
+    <h3>Liens hypertextes</h3>
+    <p>Ce site peut contenir des liens vers des sites tiers non contrôlés par ELITE HOSPITALITY MANAGEMENT. Ces liens sont fournis uniquement pour la commodité de nos utilisateurs et ne constituent pas une approbation du contenu, des politiques de confidentialité ou des pratiques de ces sites.</p>
+  </div>
+
+  <div class="terms-article">
+    <h3>Limitation de responsabilité</h3>
+    <p>ELITE HOSPITALITY MANAGEMENT s'efforce d'assurer l'exactitude des informations publiées sur ce site, mais ne peut garantir qu'elles soient exactes, complètes ou à jour. En aucun cas nous ne saurions être tenus responsables de dommages directs, indirects, accessoires ou consécutifs résultant de l'utilisation de ce site.</p>
+  </div>
+
+  <div class="terms-article">
+    <h3>Modifications des conditions</h3>
+    <p>ELITE HOSPITALITY MANAGEMENT se réserve le droit de modifier ces conditions à tout moment sans préavis. Il vous appartient de consulter régulièrement ces conditions afin d'être informé de tout changement.</p>
+  </div>
+
+  <div class="terms-article">
+    <h3>Protection des données</h3>
+    <p>ELITE HOSPITALITY MANAGEMENT s'engage à protéger la confidentialité de vos données personnelles. Toute information collectée sur ce site est traitée conformément à notre Politique de confidentialité, qui explique comment nous collectons, utilisons et protégeons vos données personnelles.</p>
+  </div>
+
+  <div class="terms-article">
+    <h3>Droit applicable</h3>
+    <p>Ces conditions sont régies et interprétées conformément au droit marocain. Tout litige découlant de ou lié à l'utilisation de ce site sera soumis à la compétence exclusive des juridictions marocaines.</p>
+  </div>
+
+  <div class="terms-article">
+    <h3>Contact</h3>
+    <p>Pour toute question relative aux présentes conditions d'utilisation, veuillez nous contacter à l'adresse suivante : <a href="mailto:info@hotel-alhambra.ma" style="color: #B8860B; text-decoration: none;">info@hotel-alhambra.ma</a></p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <p>Km 5, Route Malabata, Tanger 90000</p>
+      <p>+212 (0) 5 000-0000</p>
+      <a href="#">info@hotel-tanger.com</a>
+      <a href="#">hotel.tanger@gmail.com</a>
+    </div>
+
+    <div class="footer-logo-wrap">
+      <div class="footer-logo">H</div>
+      <div class="footer-tagline">Hôtel de Luxe · Maroc</div>
+    </div>
+
+    <div class="footer-col">
+      <h4>Suivez notre actualité</h4>
+      <div class="newsletter-row">
+        <input class="newsletter-input" type="email" placeholder="Inscrivez-vous à notre newsletter" />
+        <button class="newsletter-btn">OK</button>
+      </div>
+      <div class="footer-social">
+        <a class="social-icon" href="#">f</a>
+        <a class="social-icon" href="#">in</a>
+        <a class="social-icon" href="#">ig</a>
+        <a class="social-icon" href="#">x</a>
+      </div>
+    </div>
+  </div>
+
+  <nav class="footer-nav">
+    <a href="#">Notre histoire</a>
+    <a href="#">About us</a>
+    <a href="#">Contact us</a>
+    <a href="#">Conditions générales</a>
+  </nav>
+
+  <div class="footer-bottom">
+    © Hôtel Alhambra · Tous droits réservés
+  </div>
+</footer>
+
+</body>
+</html>
