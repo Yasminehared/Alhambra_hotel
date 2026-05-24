@@ -1,0 +1,48 @@
+[debug] [2026-04-27T10:12:13.712Z] ----------------------------------------------------------------------
+[debug] [2026-04-27T10:12:13.719Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\futuretech\AppData\Local\npm-cache\_npx\ba4f1959e38407b5\node_modules\firebase-tools\lib\bin\firebase.js init dataconnect --project demo-no-project
+[debug] [2026-04-27T10:12:13.719Z] CLI Version:   15.15.0
+[debug] [2026-04-27T10:12:13.720Z] Platform:      win32
+[debug] [2026-04-27T10:12:13.720Z] Node Version:  v25.2.1
+[debug] [2026-04-27T10:12:13.720Z] Time:          Mon Apr 27 2026 11:12:13 GMT+0100 (GMT+01:00)
+[debug] [2026-04-27T10:12:13.721Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-04-27T10:12:13.725Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\futuretech\OneDrive\Bureau\hotel-react
+
+[debug] [2026-04-27T10:12:18.772Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2026-04-27T10:12:18.773Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] 
+[info] Skipping Firebase project setup because a demo project is provided
+[info] 
+=== Dataconnect Setup
+[info] +  dataconnect: Detected existing apps Frontend (web), Backend (web) 
+[info] +  Wrote dataconnect\dataconnect.yaml 
+[info] +  Wrote dataconnect\seed_data.gql 
+[info] +  Wrote dataconnect\schema\schema.gql 
+[info] +  Wrote dataconnect\example\connector.yaml 
+[info] +  Wrote dataconnect\example\queries.gql 
+[info] +  Wrote dataconnect\example\mutations.gql 
+[info] +  Wrote dataconnect\example\connector.yaml 
+[info] i  dataconnect: Installing the generated SDKs ... 
+[info] i  dataconnect: downloading dataconnect-emulator-3.4.5.exe... {"metadata":{"emulator":{"name":"dataconnect"},"message":"downloading dataconnect-emulator-3.4.5.exe..."}}
+[debug] [2026-04-27T10:33:52.728Z] >>> [apiv2][query] GET https://storage.googleapis.com/firemat-preview-drop/emulator/dataconnect-emulator-windows-amd64-v3.4.5 
+[debug] [2026-04-27T10:33:53.051Z] <<< [apiv2][status] GET https://storage.googleapis.com/firemat-preview-drop/emulator/dataconnect-emulator-windows-amd64-v3.4.5 200
+[debug] [2026-04-27T10:33:53.051Z] <<< [apiv2][body] GET https://storage.googleapis.com/firemat-preview-drop/emulator/dataconnect-emulator-windows-amd64-v3.4.5 [stream]
+[info] +  dataconnect: Installed generated SDKs for Backend (web) 
+[info] 
+=== Agent Skills Setup
+[info] If you are using an AI coding agent, Firebase Agent Skills make it an expert at Firebase.
