@@ -1,6 +1,6 @@
-import Navbar from "./components/NavBar";
-import Footer from "./components/Footer";
-import BookingBar from "./components/BookingBar";
+import Header from "./composant/header";
+import Footer from "./composant/footer";
+import BookingBar from "./composant/BookingBar";
 
 function Home() {
   return (
@@ -18,7 +18,7 @@ function Home() {
 
         <div className="absolute inset-0 bg-black/30" />
 
-        <Navbar transparent />
+        <Header transparent />
 
         {/* HERO TEXT */}
         <div
