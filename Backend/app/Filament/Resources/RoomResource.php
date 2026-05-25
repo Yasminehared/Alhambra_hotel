@@ -53,7 +53,6 @@ class RoomResource extends Resource
                                 ->required()
                                 ->options([
                                     'available' => 'Available (Clean & Ready)',
-                                    'reserved' => 'Reserved (Booked upcoming)',
                                     'occupied' => 'Occupied (Guest inside)',
                                     'maintenance' => 'Maintenance (Repairing)',
                                     'out_of_service' => 'Out Of Service',
@@ -66,6 +65,12 @@ class RoomResource extends Resource
                                 ->default(true)
                                 ->required(),
                         ]),
+
+                        Forms\Components\Select::make('amenities')
+                            ->relationship('amenities', 'name')
+                            ->multiple()
+                            ->preload()
+                            ->label('Amenities'),
                     ]),
 
                 Forms\Components\Section::make('Staff Comments & Notes')
@@ -99,15 +104,13 @@ class RoomResource extends Resource
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'available' => 'success',
-                        'reserved' => 'warning',
                         'occupied' => 'danger',
-                        'maintenance' => 'gray',
-                        'out_of_service' => 'danger',
+                        'maintenance' => 'warning',
+                        'out_of_service' => 'gray',
                         default => 'gray',
                     })
                     ->formatStateUsing(fn (string $state): string => match ($state) {
                         'available' => 'Available',
-                        'reserved' => 'Reserved',
                         'occupied' => 'Occupied',
                         'maintenance' => 'Maintenance',
                         'out_of_service' => 'Out Of Service',
@@ -133,15 +136,62 @@ class RoomResource extends Resource
                 Tables\Filters\SelectFilter::make('status')
                     ->options([
                         'available' => 'Available',
-                        'reserved' => 'Reserved',
                         'occupied' => 'Occupied',
                         'maintenance' => 'Maintenance',
                         'out_of_service' => 'Out Of Service',
                     ]),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('put_in_maintenance')
+                        ->label('Put in Maintenance')
+                        ->icon('heroicon-o-wrench-screwdriver')
+                        ->color('warning')
+                        ->visible(fn (Room $record): bool => $record->status?->value === 'available')
+                        ->form([
+                            Forms\Components\TextInput::make('title')
+                                ->required()
+                                ->placeholder('e.g. AC Repair, Leak fix'),
+                            Forms\Components\Select::make('priority')
+                                ->options([
+                                    'low' => 'Low',
+                                    'medium' => 'Medium',
+                                    'high' => 'High',
+                                    'critical' => 'Critical',
+                                ])
+                                ->default('medium')
+                                ->required(),
+                            Forms\Components\Textarea::make('description')
+                                ->placeholder('Add description (optional)'),
+                            Forms\Components\Toggle::make('blocks_room')
+                                ->label('Blocks Room from Bookings')
+                                ->default(true),
+                        ])
+                        ->action(function (Room $record, array $data) {
+                            try {
+                                app(\App\Services\MaintenanceService::class)->openTicket(
+                                    $record,
+                                    $data['title'],
+                                    $data['priority'],
+                                    $data['description'],
+                                    $data['blocks_room']
+                                );
+                                \Filament\Notifications\Notification::make()
+                                    ->success()
+                                    ->title('Maintenance Ticket Opened')
+                                    ->body("Room {$record->room_number} is now in maintenance.")
+                                    ->send();
+                            } catch (\Exception $e) {
+                                \Filament\Notifications\Notification::make()
+                                    ->danger()
+                                    ->title('Error')
+                                    ->body($e->getMessage())
+                                    ->send();
+                            }
+                        }),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

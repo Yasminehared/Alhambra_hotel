@@ -11,22 +11,18 @@ class CreateReservation extends CreateRecord
 {
     protected static string $resource = ReservationResource::class;
 
-    protected function beforeCreate(): void
+    protected function handleRecordCreation(array $data): \Illuminate\Database\Eloquent\Model
     {
-        $data = $this->data;
-        
-        $hasOverlap = Reservation::overlapping(
-            $data['room_id'],
-            $data['check_in'],
-            $data['check_out']
-        )->exists();
+        $roomIds = $data['rooms'] ?? [];
+        unset($data['rooms']);
 
-        if ($hasOverlap) {
-            Notification::make()
+        try {
+            return app(\App\Services\ReservationService::class)->createReservation($data, $roomIds);
+        } catch (\Exception $e) {
+            \Filament\Notifications\Notification::make()
                 ->danger()
-                ->title('Double-Booking Prevented')
-                ->body('The selected room is already booked for the chosen date range. Please select another room or alternative dates.')
-                ->persistent()
+                ->title('Booking Failed')
+                ->body($e->getMessage())
                 ->send();
 
             $this->halt();

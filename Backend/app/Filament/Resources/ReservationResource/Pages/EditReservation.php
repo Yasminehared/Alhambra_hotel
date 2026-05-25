@@ -19,22 +19,26 @@ class EditReservation extends EditRecord
         ];
     }
 
-    protected function beforeSave(): void
+    protected function handleRecordUpdate(\Illuminate\Database\Eloquent\Model $record, array $data): \Illuminate\Database\Eloquent\Model
     {
-        $data = $this->data;
+        $roomIds = $data['rooms'] ?? [];
+        unset($data['rooms']);
 
-        $hasOverlap = Reservation::overlapping(
-            $data['room_id'],
-            $data['check_in'],
-            $data['check_out']
-        )->where('id', '!=', $this->record->id)->exists();
+        try {
+            \Illuminate\Support\Facades\DB::transaction(function () use ($record, $data, $roomIds) {
+                // Update reservation fields (including check-in / check-out dates)
+                $record->update($data);
 
-        if ($hasOverlap) {
-            Notification::make()
+                // Re-assign rooms (which checks availability and updates prices)
+                app(\App\Actions\AssignRoomAction::class)->execute($record, $roomIds);
+            });
+
+            return $record;
+        } catch (\Exception $e) {
+            \Filament\Notifications\Notification::make()
                 ->danger()
-                ->title('Double-Booking Prevented')
-                ->body('The updated dates or room selection overlaps with an existing booking. Modification halted.')
-                ->persistent()
+                ->title('Update Failed')
+                ->body($e->getMessage())
                 ->send();
 
             $this->halt();

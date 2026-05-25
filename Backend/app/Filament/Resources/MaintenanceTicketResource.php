@@ -183,8 +183,65 @@ class MaintenanceTicketResource extends Resource
                     ->label('Blocking Tickets Only'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('mark_in_progress')
+                        ->label('Mark In Progress')
+                        ->icon('heroicon-o-play')
+                        ->color('info')
+                        ->visible(fn (MaintenanceTicket $record): bool => $record->status?->value === 'pending')
+                        ->action(function (MaintenanceTicket $record) {
+                            try {
+                                app(\App\Services\MaintenanceService::class)->updateStatus(
+                                    $record,
+                                    \App\Enums\MaintenanceStatus::IN_PROGRESS,
+                                    auth()->user()
+                                );
+                                \Filament\Notifications\Notification::make()
+                                    ->success()
+                                    ->title('Ticket In Progress')
+                                    ->body("Maintenance ticket has been marked in progress.")
+                                    ->send();
+                            } catch (\Exception $e) {
+                                \Filament\Notifications\Notification::make()
+                                    ->danger()
+                                    ->title('Error')
+                                    ->body($e->getMessage())
+                                    ->send();
+                            }
+                        }),
+                    Tables\Actions\Action::make('resolve')
+                        ->label('Resolve Ticket')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->visible(fn (MaintenanceTicket $record): bool => in_array($record->status?->value, ['pending', 'in_progress']))
+                        ->form([
+                            Forms\Components\Textarea::make('resolution_notes')
+                                ->required()
+                                ->placeholder('Provide resolution details...'),
+                        ])
+                        ->action(function (MaintenanceTicket $record, array $data) {
+                            try {
+                                app(\App\Services\MaintenanceService::class)->resolve(
+                                    $record,
+                                    $data['resolution_notes'],
+                                    auth()->user()
+                                );
+                                \Filament\Notifications\Notification::make()
+                                    ->success()
+                                    ->title('Ticket Resolved')
+                                    ->body("Maintenance ticket has been resolved.")
+                                    ->send();
+                            } catch (\Exception $e) {
+                                \Filament\Notifications\Notification::make()
+                                    ->danger()
+                                    ->title('Error')
+                                    ->body($e->getMessage())
+                                    ->send();
+                            }
+                        }),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

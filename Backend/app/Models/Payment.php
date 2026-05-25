@@ -4,13 +4,14 @@ namespace App\Models;
 
 use App\Enums\PaymentStatus;
 use App\Traits\HasReference;
+use App\Traits\HasAuditColumns;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Payment extends Model
 {
-    use HasFactory, HasReference;
+    use HasFactory, HasReference, HasAuditColumns;
 
     protected $fillable = [
         'reservation_id',

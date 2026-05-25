@@ -171,8 +171,28 @@ class DatabaseSeeder extends Seeder
         ];
 
         $createdRoomTypes = [];
+        $roomTypeAmenities = [];
         foreach ($roomTypesData as $data) {
-            $createdRoomTypes[$data['slug']] = RoomType::create($data);
+            $amenities = $data['amenities'] ?? [];
+            unset($data['amenities']);
+            $roomType = RoomType::create($data);
+            $createdRoomTypes[$data['slug']] = $roomType;
+            $roomTypeAmenities[$roomType->id] = $amenities;
+        }
+
+        // Create unique amenities in the database
+        $allAmenityNames = [];
+        foreach ($roomTypeAmenities as $amenities) {
+            $allAmenityNames = array_merge($allAmenityNames, $amenities);
+        }
+        $allAmenityNames = array_unique($allAmenityNames);
+
+        $createdAmenities = [];
+        foreach ($allAmenityNames as $name) {
+            $createdAmenities[$name] = \App\Models\Amenity::firstOrCreate([
+                'name' => $name,
+                'slug' => Str::slug($name),
+            ]);
         }
 
         // 3. Seed Rooms
@@ -207,12 +227,22 @@ class DatabaseSeeder extends Seeder
 
         $allRooms = [];
         foreach ($roomsData as $r) {
-            $allRooms[] = Room::create([
-                'room_type_id' => $createdRoomTypes[$r['slug']]->id,
+            $roomType = $createdRoomTypes[$r['slug']];
+            $room = Room::create([
+                'room_type_id' => $roomType->id,
                 'room_number' => $r['room_number'],
                 'floor' => $r['floor'],
                 'status' => 'available',
             ]);
+            $allRooms[] = $room;
+
+            // Attach amenities for this room type
+            $amenityNames = $roomTypeAmenities[$roomType->id] ?? [];
+            foreach ($amenityNames as $name) {
+                if (isset($createdAmenities[$name])) {
+                    $room->amenities()->attach($createdAmenities[$name]->id);
+                }
+            }
         }
 
         // 4. Seed Customers
@@ -280,10 +310,9 @@ class DatabaseSeeder extends Seeder
 
         // 5. Seed Reservations
         // Completed/Checked-out historical reservation
-        Reservation::create([
+        $res1 = Reservation::create([
             'reference' => 'RES-20260101-H12A',
             'customer_id' => $customers[1]->id, // John Smith
-            'room_id' => $allRooms[0]->id, // Room 101 (Superior)
             'check_in' => now()->subDays(15)->format('Y-m-d'),
             'check_out' => now()->subDays(10)->format('Y-m-d'),
             'adults' => 2,
@@ -298,14 +327,14 @@ class DatabaseSeeder extends Seeder
             'checked_in_at' => now()->subDays(15)->setHour(14),
             'checked_out_at' => now()->subDays(10)->setHour(11),
         ]);
+        $res1->rooms()->attach($allRooms[0]->id, ['price_per_night' => 1800.00]);
 
         // Active/Checked-in reservation
         $occupiedRoom = $allRooms[4]; // Room 202 (Deluxe)
         $occupiedRoom->update(['status' => 'occupied']);
-        Reservation::create([
+        $res2 = Reservation::create([
             'reference' => 'RES-20260215-F456',
             'customer_id' => $customers[0]->id, // Sophia Loren
-            'room_id' => $occupiedRoom->id,
             'check_in' => now()->subDays(2)->format('Y-m-d'),
             'check_out' => now()->addDays(3)->format('Y-m-d'),
             'adults' => 1,
@@ -319,14 +348,13 @@ class DatabaseSeeder extends Seeder
             'special_requests' => 'VIP Airport pickup requested.',
             'checked_in_at' => now()->subDays(2)->setHour(15),
         ]);
+        $res2->rooms()->attach($occupiedRoom->id, ['price_per_night' => 2400.00]);
 
         // Upcoming confirmed reservation
         $reservedRoom = $allRooms[14]; // Villa V2 (Riad Villa)
-        $reservedRoom->update(['status' => 'reserved']);
-        Reservation::create([
+        $res3 = Reservation::create([
             'reference' => 'RES-20260220-Y890',
             'customer_id' => $customers[2]->id, // Yasmine Hared
-            'room_id' => $reservedRoom->id,
             'check_in' => now()->addDays(2)->format('Y-m-d'),
             'check_out' => now()->addDays(7)->format('Y-m-d'),
             'adults' => 4,
@@ -340,12 +368,12 @@ class DatabaseSeeder extends Seeder
             'special_requests' => 'Wants extra mint tea preparation ingredients and traditional Moroccan cookies upon arrival.',
             'confirmed_at' => now()->subDays(1),
         ]);
+        $res3->rooms()->attach($reservedRoom->id, ['price_per_night' => 18000.00]);
 
         // Pending upcoming reservation
-        Reservation::create([
+        $res4 = Reservation::create([
             'reference' => 'RES-20260225-P098',
             'customer_id' => $customers[3]->id, // Liam Neeson
-            'room_id' => $allRooms[11]->id, // Room 601 (Royal Suite)
             'check_in' => now()->addDays(10)->format('Y-m-d'),
             'check_out' => now()->addDays(14)->format('Y-m-d'),
             'adults' => 2,
@@ -357,6 +385,7 @@ class DatabaseSeeder extends Seeder
             'source' => 'direct',
             'special_requests' => 'Strict confidentiality, separate elevator usage.',
         ]);
+        $res4->rooms()->attach($allRooms[11]->id, ['price_per_night' => 8500.00]);
 
         // 6. Seed Maintenance Tickets
         $maintenanceRoom = $allRooms[1]; // Room 102 (Superior)

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\PaymentStatus;
 use App\Enums\ReservationStatus;
 use App\Traits\HasReference;
+use App\Traits\HasAuditColumns;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Reservation extends Model
 {
-    use HasFactory, HasReference;
+    use HasFactory, HasReference, HasAuditColumns;
 
     protected $fillable = [
         'reference',

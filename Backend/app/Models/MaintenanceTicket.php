@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\MaintenanceStatus;
 use App\Enums\RoomStatus;
+use App\Traits\HasAuditColumns;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MaintenanceTicket extends Model
 {
-    use HasFactory;
+    use HasFactory, HasAuditColumns;
 
     protected $fillable = [
         'room_id',
