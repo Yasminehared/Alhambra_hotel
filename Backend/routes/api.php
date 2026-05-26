@@ -8,12 +8,12 @@ use App\Http\Controllers\Api\AuthController;
 use Illuminate\Support\Facades\Route;
 
 // Auth API
-Route::post('/login',           [AuthController::class, 'login']);
+Route::post('/login',           [AuthController::class, 'login'])->middleware('throttle:5,1');
 Route::post('/logout',          [AuthController::class, 'logout']);
 Route::get('/me',               [AuthController::class, 'me']);
 
 // Public Guest Catalog & Booking APIs
-Route::post('/reservations',        [ReservationController::class, 'store']);
+Route::post('/reservations',        [ReservationController::class, 'store'])->middleware('throttle:10,1');
 Route::get('/room-types',           [RoomController::class, 'roomTypes']);
 Route::get('/room-types/{slug}',     [RoomController::class, 'roomTypeDetail']);
 

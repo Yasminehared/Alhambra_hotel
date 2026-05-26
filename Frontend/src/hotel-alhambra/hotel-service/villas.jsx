@@ -1,55 +1,8 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import axios from "axios";
 import Footer from "../composant/footer";
 import Header from "../composant/header";
-
-const VILLAS = [
-  {
-    id: 8,
-    name: "Garden Villa",
-    size: "220 m²",
-    guests: "Up to 4 Guests",
-    description:
-      "Nestled within a private walled garden of jasmine and orange blossom, the Garden Villa offers a sovereign retreat from the world. A secluded heated pool, shaded terraces, and hand-painted Fassi tilework compose a sanctuary of absolute tranquility.",
-    features: ["Private Heated Pool", "Walled Garden", "2 Bedrooms", "Outdoor Dining", "Fireplace", "Butler Service"],
-    image: "https://images.unsplash.com/photo-1613977257363-707ba9348227?w=1400&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&q=80",
-      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&q=80",
-    ],
-    reverse: false,
-  },
-  {
-    id: 9,
-    name: "Riad Villa",
-    size: "340 m²",
-    guests: "Up to 6 Guests",
-    description:
-      "An entire traditional riad reimagined as a private villa. Centred around a mosaic courtyard with a plashing fountain, this residence unfolds across three bedrooms, a private hammam, a rooftop terrace with panoramic medina views, and a full kitchen staffed at your discretion.",
-    features: ["Mosaic Courtyard", "Private Hammam", "3 Bedrooms", "Rooftop Terrace", "Private Kitchen", "Full Staff"],
-    image: "https://images.unsplash.com/photo-1602343168117-bb8ffe3e2e9f?w=1400&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600&q=80",
-      "https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=600&q=80",
-    ],
-    reverse: true,
-  },
-  {
-    id: 10,
-    name: "Palais Villa",
-    size: "580 m²",
-    guests: "Up to 10 Guests",
-    description:
-      "The most coveted address at Alhambra. The Palais Villa is a complete private palace — five bedrooms, a grand reception hall adorned with antique Moroccan lanterns, two pools, a cinema room, a private chef, and a personal concierge available around the clock. An experience with no equal.",
-    features: ["2 Private Pools", "5 Bedrooms", "Private Chef", "Cinema Room", "Reception Hall", "24h Concierge"],
-    image: "https://images.unsplash.com/photo-1580977276076-ae4b8c219b8e?w=1400&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1529408686214-b48b8532f72c?w=600&q=80",
-      "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=600&q=80",
-    ],
-    reverse: false,
-  },
-];
 
 const SERVICES = [
   { label: "Private Chef", desc: "Curated menus crafted daily" },
@@ -61,9 +14,25 @@ const SERVICES = [
 ];
 
 export default function Villas() {
-  const [arrival, setArrival] = useState("27 February 2026");
-  const [departure, setDeparture] = useState("28 February 2026");
+  const [villasList, setVillasList] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    async function loadVillas() {
+      try {
+        setLoading(true);
+        const res = await axios.get("/api/room-types");
+        const filtered = res.data.filter((r) => r.category === "villa");
+        setVillasList(filtered);
+      } catch (err) {
+        console.error("Error loading villas", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadVillas();
+  }, []);
 
   return (
     <>
@@ -588,49 +557,57 @@ export default function Villas() {
 
         {/* ── VILLAS ── */}
         <section className="villas-section">
-          {VILLAS.map((villa, i) => (
-            <div
-              key={villa.id}
-              className={`villa-block${villa.reverse ? " villa-block--reverse" : ""}`}
-            >
-              <div className="villa-image-col">
-                <img
-                  className="villa-main-img"
-                  src={villa.image}
-                  alt={villa.name}
-                />
-                <div className="villa-guests-tag">{villa.guests}</div>
-                <div className="villa-gallery">
-                  {villa.gallery.map((g, gi) => (
-                    <img key={gi} src={g} alt="" className="villa-thumb" />
-                  ))}
-                </div>
-              </div>
-
-              <div className="villa-card">
-                <span className="villa-index">0{i + 1}</span>
-                <p className="villa-size">{villa.size}</p>
-                <h2 className="villa-name">{villa.name}</h2>
-                <p className="villa-desc">{villa.description}</p>
-                <div className="villa-features">
-                  {villa.features.map((f) => (
-                    <span key={f} className="villa-feature">{f}</span>
-                  ))}
-                </div>
-                <div className="villa-actions">
-                  <button
-                    className="villa-book-btn"
-                    onClick={() => navigate(`/villa/${villa.id}`)}
-                  >
-                    BOOK NOW
-                  </button>
-                  <Link to={`/villa/${villa.id}`} className="villa-link">
-                    Discover →
-                  </Link>
-                </div>
-              </div>
+          {loading ? (
+            <div style={{ textAlign: "center", padding: "4rem", fontSize: "1.2rem", color: "var(--brown)" }}>
+              Loading Villas...
             </div>
-          ))}
+          ) : (
+            villasList.map((villa, i) => (
+              <div
+                key={villa.id}
+                className={`villa-block${i % 2 === 1 ? " villa-block--reverse" : ""}`}
+              >
+                <div className="villa-image-col">
+                  <img
+                    className="villa-main-img"
+                    src={villa.hero_image || (villa.images && villa.images[0]) || "https://images.unsplash.com/photo-1613977257363-707ba9348227?w=1400&q=80"}
+                    alt={villa.name}
+                  />
+                  <div className="villa-guests-tag">Up to {villa.capacity} Guests</div>
+                </div>
+
+                <div className="villa-card">
+                  <span className="villa-index">0{i + 1}</span>
+                  <p className="villa-size">{villa.size_sqm} m²</p>
+                  <h2 className="villa-name">{villa.name}</h2>
+                  <p className="villa-desc">{villa.description}</p>
+                  <div className="villa-features">
+                    {(villa.amenities || []).map((f) => (
+                      <span key={f.id || f.name} className="villa-feature">{f.name}</span>
+                    ))}
+                    {(!villa.amenities || villa.amenities.length === 0) && (
+                      <>
+                        <span className="villa-feature">Private Pool</span>
+                        <span className="villa-feature">Walled Garden</span>
+                        <span className="villa-feature">Butler Service</span>
+                      </>
+                    )}
+                  </div>
+                  <div className="villa-actions">
+                    <button
+                      className="villa-book-btn"
+                      onClick={() => navigate(`/room/${villa.slug}`)}
+                    >
+                      BOOK NOW
+                    </button>
+                    <Link to={`/room/${villa.slug}`} className="villa-link">
+                      Discover →
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
         </section>
 
         {/* ── SERVICES ── */}

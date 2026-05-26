@@ -23,5 +23,9 @@ class AppServiceProvider extends ServiceProvider
     {
         // Fix: MySQL < 5.7.7 index key length limit with utf8mb4 charset
         Schema::defaultStringLength(191);
+
+        if (config('app.env') === 'production') {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
     }
 }

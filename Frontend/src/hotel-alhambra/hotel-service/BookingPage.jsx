@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 
 const labelStyle = {
@@ -24,14 +25,41 @@ const inputStyle = {
 };
 
 export default function BookingPage() {
+  const { roomId } = useParams();
+  const [roomTypes, setRoomTypes] = useState([]);
   const [form, setForm] = useState({
     check_in: "", check_out: "",
     adults: 2, children: 0,
     full_name: "", email: "",
     phone: "", special_requests: "",
+    room_type_id: "",
   });
   const [status, setStatus] = useState(null); // null | "loading" | "success" | "error"
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    async function loadRoomTypes() {
+      try {
+        const res = await axios.get("/api/room-types");
+        setRoomTypes(res.data);
+        if (roomId) {
+          const match = res.data.find(
+            (r) => String(r.id) === String(roomId) || r.slug === roomId
+          );
+          if (match) {
+            setForm((prev) => ({ ...prev, room_type_id: match.id }));
+          } else if (res.data.length > 0) {
+            setForm((prev) => ({ ...prev, room_type_id: res.data[0].id }));
+          }
+        } else if (res.data.length > 0) {
+          setForm((prev) => ({ ...prev, room_type_id: res.data[0].id }));
+        }
+      } catch (err) {
+        console.error("Failed to load room types", err);
+      }
+    }
+    loadRoomTypes();
+  }, [roomId]);
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -70,6 +98,24 @@ export default function BookingPage() {
         </div>
 
         <div style={{ padding: "40px 48px" }}>
+
+          {/* ROOM TYPE SELECTION */}
+          <div style={{ marginBottom: "20px" }}>
+            <label style={labelStyle}>Selected Accommodation</label>
+            <select
+              name="room_type_id"
+              value={form.room_type_id}
+              onChange={handleChange}
+              style={inputStyle}
+            >
+              {roomTypes.map((rt) => (
+                <option key={rt.id} value={rt.id}>
+                  {rt.name} - MAD {rt.base_price}/night (Capacity: {rt.capacity} guests)
+                </option>
+              ))}
+            </select>
+            {errors.room_type_id && <p style={{ color: "#c0392b", fontSize: "0.7rem", marginTop: "4px" }}>{errors.room_type_id[0]}</p>}
+          </div>
 
           {/* DATES */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "20px" }}>

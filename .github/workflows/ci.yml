@@ -1,0 +1,59 @@
+name: Staging CI
+
+on:
+  push:
+    branches: [ staging ]
+  pull_request:
+    branches: [ staging ]
+
+jobs:
+  laravel-tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+        coverage: none
+
+    - name: Install Backend Dependencies
+      run: |
+        cd Backend
+        composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+    - name: Prepare Backend Configuration
+      run: |
+        cd Backend
+        cp .env.example .env
+        touch database/database.sqlite
+        php artisan key:generate
+
+    - name: Run Backend Tests
+      run: |
+        cd Backend
+        php artisan test
+
+  react-build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: Frontend/package-lock.json
+
+    - name: Install Frontend Dependencies
+      run: |
+        cd Frontend
+        npm ci
+
+    - name: Verify React Production Build
+      run: |
+        cd Frontend
+        npm run build

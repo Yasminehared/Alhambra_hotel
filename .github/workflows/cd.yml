@@ -1,0 +1,45 @@
+name: Production CD
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  production-readiness:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+        coverage: none
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: Frontend/package-lock.json
+
+    - name: Build & Run Laravel Test Suite
+      run: |
+        cd Backend
+        composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+        cp .env.example .env
+        touch database/database.sqlite
+        php artisan key:generate
+        php artisan test
+
+    - name: Build & Verify React Production Bundle
+      run: |
+        cd Frontend
+        npm ci
+        npm run build
+
+    - name: Production Deployment Trigger
+      run: |
+        echo "Successfully verified Alhambra production build pipeline. Proceeding to VPS secure deployment."
+        # Add actual Rsync / SSH / Deployer trigger command here if automated deployment credentials are set

@@ -39,6 +39,7 @@ class ReservationController extends Controller
             'email'            => 'required|email|max:255',
             'phone'            => 'nullable|string|max:30',
             'special_requests' => 'nullable|string|max:1000',
+            'room_type_id'     => 'nullable|integer|exists:room_types,id',
         ]);
 
         try {
@@ -49,8 +50,11 @@ class ReservationController extends Controller
             // Find available rooms
             $availableRooms = $this->availabilityService->getAvailableRooms($checkIn, $checkOut);
 
-            // Filter rooms by capacity
-            $matchingRooms = $availableRooms->filter(function ($room) use ($capacityNeeded) {
+            // Filter rooms by capacity and optional room_type_id
+            $matchingRooms = $availableRooms->filter(function ($room) use ($capacityNeeded, $validated) {
+                if (!empty($validated['room_type_id']) && $room->room_type_id != $validated['room_type_id']) {
+                    return false;
+                }
                 return $room->roomType->capacity >= $capacityNeeded;
             })->sortBy(function ($room) {
                 return $room->roomType->base_price;

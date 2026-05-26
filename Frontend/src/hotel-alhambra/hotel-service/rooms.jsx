@@ -1,42 +1,29 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import axios from "axios";
 import Footer from "../composant/footer";
 import Header from "../composant/header";
 
-const ROOMS = [
-  {
-    id: 1,
-    name: "Superior Room",
-    description:
-      "In a sober, elegant and contemporary oriental setting, the superior rooms embody refinement, comfort and premium service.",
-    image:
-      "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1200&q=80",
-    reverse: false,
-  },
-  {
-    id: 2,
-    name: "Deluxe Room",
-    description:
-      "Each deluxe room offers 55 square meters of elegance, luxury and intimacy with breathtaking interior design.",
-    image:
-      "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=1200&q=80",
-    reverse: true,
-  },
-  {
-    id: 3,
-    name: "Deluxe Premier Room",
-    description:
-      "A subtle oriental refinement with pool and garden views, designed for exceptional comfort and prestige.",
-    image:
-      "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=80",
-    reverse: false,
-  },
-];
-
 export default function Rooms() {
-  const [arrival, setArrival] = useState("27 February 2026");
-  const [departure, setDeparture] = useState("28 February 2026");
+  const [roomsList, setRoomsList] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    async function loadRooms() {
+      try {
+        setLoading(true);
+        const res = await axios.get("/api/room-types");
+        const filtered = res.data.filter((r) => r.category === "room");
+        setRoomsList(filtered);
+      } catch (err) {
+        console.error("Error loading rooms", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadRooms();
+  }, []);
 
   return (
     <>
@@ -46,6 +33,7 @@ export default function Rooms() {
         :root {
           --gold: #b8975a;
           --gold-dark: #9a7a42;
+          --gold-light: #d4b47a;
           --cream: #f7f3ee;
           --brown: #3b2e1e;
           --white: #fff;
@@ -104,40 +92,6 @@ export default function Rooms() {
           text-transform: uppercase;
         }
 
-
-        /* ── BOOKING BAR (ON HERO) ── */
-        .booking-bar {
-          position: absolute;
-          bottom: 40px;
-          left: 50%;
-          transform: translateX(-50%);
-          background: white;
-          display: flex;
-          align-items: center;
-          padding: 16px 20px;
-          gap: 16px;
-          width: 80%;
-          max-width: 900px;
-          box-shadow: 0 4px 24px rgba(0,0,0,0.12);
-        }
-
-        .booking-field { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-        .booking-field label { font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: #999; }
-        .booking-field input, .booking-field span {
-          border: none; outline: none;
-          font-family: 'Jost', sans-serif;
-          font-size: 0.9rem; color: var(--brown); background: transparent;
-        }
-        .booking-divider { width: 1px; height: 40px; background: #ddd; flex-shrink: 0; }
-        .book-btn {
-          background: var(--gold); color: white; border: none;
-          padding: 14px 28px; cursor: pointer;
-          font-family: 'Jost', sans-serif; font-size: 0.7rem;
-          letter-spacing: 0.12em; text-transform: uppercase;
-          transition: background 0.2s; white-space: nowrap;
-        }
-        .book-btn:hover { background: var(--gold-dark); }
-
         .section-header { text-align: center; padding: 80px 20px 60px; }
         .section-arrow { font-size: 1.5rem; color: var(--gold); margin-bottom: 1rem; }
         .section-title {
@@ -187,9 +141,6 @@ export default function Rooms() {
         .room-image-wrap:hover .room-img { transform: scale(1.04); }
 
         @media (max-width: 768px) {
-          .booking-bar { flex-direction: column; width: 90%; bottom: 20px; }
-          .booking-divider { width: 100%; height: 1px; }
-          .book-btn { width: 100%; padding: 1rem; }
           .room-block { grid-template-columns: 1fr; min-height: unset; }
           .room-block--reverse .room-card { order: 0; }
           .room-block--reverse .room-image-wrap { order: 0; }
@@ -228,26 +179,36 @@ export default function Rooms() {
         </section>
 
         <section className="rooms-section">
-          {ROOMS.map((room) => (
-            <div
-              key={room.id}
-              className={`room-block${room.reverse ? " room-block--reverse" : ""}`}
-            >
-              <div className="room-card">
-                <h2 className="room-name">{room.name}</h2>
-                <p className="room-desc">{room.description}</p>
-                <Link to={`/room/${room.id}`} className="room-link">
-                  READ MORE →
-                </Link>
-                <button className="room-book-btn" onClick={() => navigate(`/room/${room.id}`)}>
-                  BOOK NOW
-                </button>
-              </div>
-              <div className="room-image-wrap">
-                <img src={room.image} alt={room.name} className="room-img" />
-              </div>
+          {loading ? (
+            <div style={{ textAlign: "center", padding: "4rem", fontSize: "1.2rem", color: "var(--brown)" }}>
+              Loading Rooms...
             </div>
-          ))}
+          ) : (
+            roomsList.map((room, i) => (
+              <div
+                key={room.id}
+                className={`room-block${i % 2 === 1 ? " room-block--reverse" : ""}`}
+              >
+                <div className="room-card">
+                  <h2 className="room-name">{room.name}</h2>
+                  <p className="room-desc">{room.description}</p>
+                  <Link to={`/room/${room.slug}`} className="room-link">
+                    READ MORE →
+                  </Link>
+                  <button className="room-book-btn" onClick={() => navigate(`/room/${room.slug}`)}>
+                    BOOK NOW
+                  </button>
+                </div>
+                <div className="room-image-wrap">
+                  <img
+                    src={room.hero_image || (room.images && room.images[0]) || "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1200&q=80"}
+                    alt={room.name}
+                    className="room-img"
+                  />
+                </div>
+              </div>
+            ))
+          )}
         </section>
 
         <Footer />

@@ -1,54 +1,8 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import axios from "axios";
 import Footer from "../composant/footer";
 import Header from "../composant/header";
-
-const SUITES = [
-  {
-    id: 4,
-    name: "Junior Suite",
-    size: "75 m²",
-    description:
-      "The Junior Suite offers a harmonious blend of Moroccan craftsmanship and contemporary luxury. A separate living area, hand-carved stucco walls, and panoramic garden views create an atmosphere of serene indulgence.",
-    features: ["King Bed", "Living Area", "Garden View", "Rainfall Shower"],
-    image:
-      "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=1200&q=80",
-    reverse: false,
-  },
-  {
-    id: 5,
-    name: "Senior Suite",
-    size: "110 m²",
-    description:
-      "An exceptional retreat spanning 110 square meters of refined opulence. Adorned with authentic zellige tilework, a private terrace overlooking the riad courtyard, and a deep soaking bath carved in white marble.",
-    features: ["King Bed", "Private Terrace", "Marble Bath", "Butler Service"],
-    image:
-      "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=1200&q=80",
-    reverse: true,
-  },
-  {
-    id: 6,
-    name: "Royal Suite",
-    size: "185 m²",
-    description:
-      "The pinnacle of Alhambra hospitality. This palatial suite features a double living room with ornate cedar-wood ceilings, a private hammam, dedicated butler, and sweeping views of the medina and Atlas mountains beyond.",
-    features: ["Master Bedroom", "Private Hammam", "Double Living Room", "Panoramic View"],
-    image:
-      "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1200&q=80",
-    reverse: false,
-  },
-  {
-    id: 7,
-    name: "Presidential Suite",
-    size: "280 m²",
-    description:
-      "The ultimate expression of Andalusian grandeur. Occupying an entire floor, with two bedrooms, a private dining room, a rooftop plunge pool, and bespoke Moroccan art commissioned exclusively for this retreat.",
-    features: ["Two Bedrooms", "Rooftop Plunge Pool", "Private Dining", "Exclusive Art"],
-    image:
-      "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1200&q=80",
-    reverse: true,
-  },
-];
 
 const AMENITIES = [
   { icon: "✦", label: "Private Butler" },
@@ -57,9 +11,25 @@ const AMENITIES = [
 ];
 
 export default function Suites() {
-  const [arrival, setArrival] = useState("27 February 2026");
-  const [departure, setDeparture] = useState("28 February 2026");
+  const [suitesList, setSuitesList] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    async function loadSuites() {
+      try {
+        setLoading(true);
+        const res = await axios.get("/api/room-types");
+        const filtered = res.data.filter((r) => r.category === "suite");
+        setSuitesList(filtered);
+      } catch (err) {
+        console.error("Error loading suites", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadSuites();
+  }, []);
 
   return (
     <>
@@ -149,7 +119,6 @@ export default function Suites() {
           text-transform: uppercase;
         }
 
-
         /* ── DECORATIVE LINE ── */
         .deco-line {
           display: flex;
@@ -166,48 +135,13 @@ export default function Suites() {
           height: 1px;
           background: var(--gold-light);
           opacity: 0.6;
-        }
+          }
         .deco-diamond {
           width: 6px; height: 6px;
           background: var(--gold-light);
           transform: rotate(45deg);
           flex-shrink: 0;
         }
-
-        /* ── BOOKING BAR ── */
-        .booking-bar {
-          position: absolute;
-          bottom: 40px;
-          left: 50%;
-          transform: translateX(-50%);
-          background: white;
-          display: flex;
-          align-items: center;
-          padding: 16px 20px;
-          gap: 16px;
-          width: 80%;
-          max-width: 900px;
-          box-shadow: 0 4px 40px rgba(0,0,0,0.18);
-        }
-        .booking-field { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-        .booking-field label {
-          font-size: 0.62rem; letter-spacing: 0.12em;
-          text-transform: uppercase; color: #aaa;
-        }
-        .booking-field input, .booking-field span {
-          border: none; outline: none;
-          font-family: 'Jost', sans-serif;
-          font-size: 0.9rem; color: var(--brown); background: transparent;
-        }
-        .booking-divider { width: 1px; height: 40px; background: #e0d8cf; flex-shrink: 0; }
-        .book-btn {
-          background: var(--gold); color: white; border: none;
-          padding: 14px 32px; cursor: pointer;
-          font-family: 'Jost', sans-serif; font-size: 0.68rem;
-          letter-spacing: 0.16em; text-transform: uppercase;
-          transition: background 0.25s; white-space: nowrap;
-        }
-        .book-btn:hover { background: var(--gold-dark); }
 
         /* ── INTRO SECTION ── */
         .intro-section {
@@ -355,21 +289,7 @@ export default function Suites() {
           transition: background 0.25s;
         }
         .suite-book-btn:hover { background: var(--gold-dark); }
-        .suite-link {
-          font-size: 0.68rem;
-          letter-spacing: 0.1em;
-          color: var(--brown-light);
-          text-decoration: none;
-          text-transform: uppercase;
-          transition: color 0.2s;
-          border-bottom: 1px solid transparent;
-          padding-bottom: 2px;
-        }
-        .suite-link:hover {
-          color: var(--gold);
-          border-bottom-color: var(--gold);
-        }
-
+        
         .suite-image-wrap {
           overflow: hidden;
           position: relative;
@@ -388,15 +308,6 @@ export default function Suites() {
           text-align: center;
           position: relative;
           overflow: hidden;
-        }
-        .quote-banner::before {
-          position: absolute;
-          font-family: 'Cormorant Garamond', serif;
-          font-size: 18rem;
-          color: rgba(184,150,90,0.08);
-          top: -40px; left: 40px;
-          line-height: 1;
-          user-select: none;
         }
         .quote-text {
           font-family: 'Cormorant Garamond', serif;
@@ -456,9 +367,6 @@ export default function Suites() {
           .amenity-item { padding: 10px 18px; }
         }
         @media (max-width: 600px) {
-          .booking-bar { flex-direction: column; width: 90%; bottom: 20px; }
-          .booking-divider { width: 100%; height: 1px; }
-          .book-btn { width: 100%; padding: 1rem; }
           .amenities-strip { gap: 0; }
           .amenity-item {
             border-right: none;
@@ -490,7 +398,6 @@ export default function Suites() {
               <div className="hero-divider" />
             <p className="hero-sub">An art of living beyond the ordinary</p>
           </div>
-
         </section>
 
         {/* ── INTRO ── */}
@@ -522,36 +429,53 @@ export default function Suites() {
 
         {/* ── SUITES ── */}
         <section className="suites-section">
-          {SUITES.map((suite, i) => (
-            <div
-              key={suite.id}
-              className={`suite-block${suite.reverse ? " suite-block--reverse" : ""}`}
-            >
-              <div className="suite-card">
-                <span className="suite-number">0{i + 1}</span>
-                <p className="suite-size">{suite.size}</p>
-                <h2 className="suite-name">{suite.name}</h2>
-                <p className="suite-desc">{suite.description}</p>
-                <div className="suite-features">
-                  {suite.features.map((f) => (
-                    <span key={f} className="suite-feature">{f}</span>
-                  ))}
-                </div>
-                <div className="suite-actions">
-                  <button
-                    className="suite-book-btn"
-                    onClick={() => navigate(`/suite/${suite.id}`)}
-                  >
-                    BOOK NOW
-                  </button>
-                </div>
-              </div>
-
-              <div className="suite-image-wrap">
-                <img src={suite.image} alt={suite.name} className="suite-img" />
-              </div>
+          {loading ? (
+            <div style={{ textAlign: "center", padding: "4rem", fontSize: "1.2rem", color: "var(--brown)" }}>
+              Loading Suites...
             </div>
-          ))}
+          ) : (
+            suitesList.map((suite, i) => (
+              <div
+                key={suite.id}
+                className={`suite-block${i % 2 === 1 ? " suite-block--reverse" : ""}`}
+              >
+                <div className="suite-card">
+                  <span className="suite-number">0{i + 1}</span>
+                  <p className="suite-size">{suite.size_sqm} m²</p>
+                  <h2 className="suite-name">{suite.name}</h2>
+                  <p className="suite-desc">{suite.description}</p>
+                  <div className="suite-features">
+                    {(suite.amenities || []).map((f) => (
+                      <span key={f.id || f.name} className="suite-feature">{f.name}</span>
+                    ))}
+                    {(!suite.amenities || suite.amenities.length === 0) && (
+                      <>
+                        <span className="suite-feature">King Bed</span>
+                        <span className="suite-feature">Private Terrace</span>
+                        <span className="suite-feature">Marble Bath</span>
+                      </>
+                    )}
+                  </div>
+                  <div className="suite-actions">
+                    <button
+                      className="suite-book-btn"
+                      onClick={() => navigate(`/room/${suite.slug}`)}
+                    >
+                      BOOK NOW
+                    </button>
+                  </div>
+                </div>
+
+                <div className="suite-image-wrap">
+                  <img
+                    src={suite.hero_image || (suite.images && suite.images[0]) || "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=1200&q=80"}
+                    alt={suite.name}
+                    className="suite-img"
+                  />
+                </div>
+              </div>
+            ))
+          )}
         </section>
 
         {/* ── QUOTE BANNER ── */}

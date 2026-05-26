@@ -7,8 +7,10 @@ use App\Models\Room;
 use App\Models\RoomType;
 use App\Models\Reservation;
 use App\Models\MaintenanceTicket;
+use App\Models\User;
 use App\Enums\ReservationStatus;
 use App\Enums\RoomStatus;
+use App\Enums\UserRole;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -37,9 +39,21 @@ class AdminApiTest extends TestCase
         return [$roomType, $room];
     }
 
+    private function actingAsAdmin(): void
+    {
+        $admin = User::create([
+            'name' => 'Admin User',
+            'email' => 'admin@example.com',
+            'password' => bcrypt('password'),
+            'role' => UserRole::ADMIN,
+        ]);
+        $this->actingAs($admin);
+    }
+
     public function test_can_list_rooms_via_api(): void
     {
         [$roomType, $room] = $this->createSetup();
+        $this->actingAsAdmin();
 
         $response = $this->getJson('/api/rooms');
 
@@ -56,6 +70,7 @@ class AdminApiTest extends TestCase
     public function test_can_update_room_details_via_api(): void
     {
         [$roomType, $room] = $this->createSetup();
+        $this->actingAsAdmin();
 
         $response = $this->putJson("/api/rooms/{$room->id}", [
             'status' => 'maintenance',
@@ -74,6 +89,7 @@ class AdminApiTest extends TestCase
     public function test_can_list_maintenance_tickets_via_api(): void
     {
         [$roomType, $room] = $this->createSetup();
+        $this->actingAsAdmin();
 
         $ticket = MaintenanceTicket::create([
             'room_id' => $room->id,
@@ -98,6 +114,7 @@ class AdminApiTest extends TestCase
     public function test_can_create_maintenance_ticket_via_api(): void
     {
         [$roomType, $room] = $this->createSetup();
+        $this->actingAsAdmin();
 
         $response = $this->postJson('/api/maintenance-tickets', [
             'room' => 201,
@@ -118,6 +135,7 @@ class AdminApiTest extends TestCase
     public function test_can_update_maintenance_ticket_via_api(): void
     {
         [$roomType, $room] = $this->createSetup();
+        $this->actingAsAdmin();
 
         $ticket = MaintenanceTicket::create([
             'room_id' => $room->id,
