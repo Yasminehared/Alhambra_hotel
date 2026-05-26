@@ -18,6 +18,7 @@ class Room extends Model
         'room_number',
         'floor',
         'status',
+        'housekeeping_status',
         'notes',
         'is_active',
     ];

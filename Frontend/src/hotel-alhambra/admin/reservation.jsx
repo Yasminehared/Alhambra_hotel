@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 const GOLD = "#b8965a";
 const DARK = "#1a1208";
@@ -149,8 +150,8 @@ const SOURCE_COLORS = {
 
 const NAV_ITEMS = [
   { icon: <GridIcon />,   label: "Overview",     to: "/dashboard" },
-  { icon: <CalIcon />,    label: "Reservations", to: "/reservations", active: true },
-  { icon: <BedIcon />,    label: "Chambres",     to: "/dashboard" },
+  { icon: <CalIcon />,    label: "Reservations", to: "/admin/reservation", active: true },
+  { icon: <BedIcon />,    label: "Chambres",     to: "/admin/chambres" },
   { icon: <WrenchIcon />, label: "Maintenance",  to: "/maintenance" },
   { icon: <ChartIcon />,  label: "Analytics",    to: "/analytics" },
   { icon: <StarIcon />,   label: "Guests",       to: "/guests" },
@@ -164,23 +165,87 @@ export default function ReservationsPage() {
   const [modalVisible, setModalVisible] = useState(false);
   const [showNewForm, setShowNewForm] = useState(false);
 
+  const [reservationsList, setReservationsList] = useState(reservations);
+  const [loading, setLoading] = useState(false);
+
+  const fetchReservations = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get("/api/reservations");
+      setReservationsList(res.data);
+    } catch (err) {
+      console.error("Error fetching reservations", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchReservations();
+  }, []);
+
+  const handleCheckIn = async (res) => {
+    try {
+      const id = res.db_id || res.id;
+      await axios.put(`/api/reservations/${id}/check-in`);
+      fetchReservations();
+      if (selectedRes) closeModal();
+    } catch (err) {
+      alert("Error checking in: " + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handleCheckOut = async (res) => {
+    try {
+      const id = res.db_id || res.id;
+      await axios.put(`/api/reservations/${id}/check-out`);
+      fetchReservations();
+      if (selectedRes) closeModal();
+    } catch (err) {
+      alert("Error checking out: " + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handleCancel = async (res) => {
+    if (!window.confirm("Are you sure you want to cancel this reservation?")) return;
+    try {
+      const id = res.db_id || res.id;
+      await axios.put(`/api/reservations/${id}/cancel`);
+      fetchReservations();
+      if (selectedRes) closeModal();
+    } catch (err) {
+      alert("Error cancelling: " + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handleConfirm = async (res) => {
+    try {
+      const id = res.db_id || res.id;
+      await axios.put(`/api/reservations/${id}/confirm`);
+      fetchReservations();
+      if (selectedRes) closeModal();
+    } catch (err) {
+      alert("Error confirming: " + (err.response?.data?.message || err.message));
+    }
+  };
+
   const openModal = (r) => { setSelectedRes(r); setTimeout(() => setModalVisible(true), 10); };
   const closeModal = () => { setModalVisible(false); setTimeout(() => setSelectedRes(null), 300); };
 
   const counts = {
-    all: reservations.length,
-    confirmed:    reservations.filter(r => r.status === "confirmed").length,
-    pending:      reservations.filter(r => r.status === "pending").length,
-    "checked-in": reservations.filter(r => r.status === "checked-in").length,
-    "checked-out":reservations.filter(r => r.status === "checked-out").length,
+    all: reservationsList.length,
+    confirmed:    reservationsList.filter(r => r.status === "confirmed").length,
+    pending:      reservationsList.filter(r => r.status === "pending").length,
+    "checked-in": reservationsList.filter(r => r.status === "checked-in").length,
+    "checked-out":reservationsList.filter(r => r.status === "checked-out").length,
   };
 
-  const totalRevenue = reservations.filter(r => r.payment === "paid").reduce((a, r) => a + r.total, 0);
-  const pendingRevenue = reservations.filter(r => r.payment !== "paid").reduce((a, r) => a + r.total, 0);
-  const vipCount = reservations.filter(r => r.vip).length;
-  const avgNights = Math.round(reservations.reduce((a, r) => a + r.nights, 0) / reservations.length);
+  const totalRevenue = reservationsList.filter(r => r.payment === "paid").reduce((a, r) => a + r.total, 0);
+  const pendingRevenue = reservationsList.filter(r => r.payment !== "paid").reduce((a, r) => a + r.total, 0);
+  const vipCount = reservationsList.filter(r => r.vip).length;
+  const avgNights = reservationsList.length ? Math.round(reservationsList.reduce((a, r) => a + r.nights, 0) / reservationsList.length) : 0;
 
-  const filtered = reservations.filter(r => {
+  const filtered = reservationsList.filter(r => {
     const matchFilter = filter === "all" || r.status === filter;
     const matchSource = sourceFilter === "all" || r.source === sourceFilter;
     const matchSearch = search === "" ||
@@ -556,17 +621,17 @@ export default function ReservationsPage() {
                     {/* Actions */}
                     <div className="res-actions" onClick={e => e.stopPropagation()}>
                       {res.status === "confirmed" && <>
-                        <button className="action-btn primary">Check In</button>
+                        <button className="action-btn primary" onClick={() => handleCheckIn(res)}>Check In</button>
                         <button className="action-btn secondary">Edit</button>
-                        <button className="action-btn danger">Cancel</button>
+                        <button className="action-btn danger" onClick={() => handleCancel(res)}>Cancel</button>
                       </>}
                       {res.status === "pending" && <>
-                        <button className="action-btn gold">Confirm</button>
+                        <button className="action-btn gold" onClick={() => handleConfirm(res)}>Confirm</button>
                         <button className="action-btn secondary">Edit</button>
-                        <button className="action-btn danger">Reject</button>
+                        <button className="action-btn danger" onClick={() => handleCancel(res)}>Reject</button>
                       </>}
                       {res.status === "checked-in" && <>
-                        <button className="action-btn primary">Check Out</button>
+                        <button className="action-btn primary" onClick={() => handleCheckOut(res)}>Check Out</button>
                         <button className="action-btn secondary">Add Service</button>
                       </>}
                       {res.status === "checked-out" && <>
@@ -643,17 +708,17 @@ export default function ReservationsPage() {
               {/* Actions */}
               <div className="modal-actions">
                 {selectedRes.status === "confirmed" && <>
-                  <button className="modal-action-btn" style={{ background: DARK, color: "white" }}>Process Check-In</button>
+                  <button className="modal-action-btn" style={{ background: DARK, color: "white" }} onClick={() => handleCheckIn(selectedRes)}>Process Check-In</button>
                   <button className="modal-action-btn" style={{ background: "white", color: DARK, border: "1px solid #ddd" }}>Edit Reservation</button>
-                  <button className="modal-action-btn" style={{ background: "rgba(220,38,38,0.08)", color: "#dc2626", border: "1px solid rgba(220,38,38,0.2)" }}>Cancel</button>
+                  <button className="modal-action-btn" style={{ background: "rgba(220,38,38,0.08)", color: "#dc2626", border: "1px solid rgba(220,38,38,0.2)" }} onClick={() => handleCancel(selectedRes)}>Cancel</button>
                 </>}
                 {selectedRes.status === "pending" && <>
-                  <button className="modal-action-btn" style={{ background: GOLD, color: "white" }}>Confirm Reservation</button>
+                  <button className="modal-action-btn" style={{ background: GOLD, color: "white" }} onClick={() => handleConfirm(selectedRes)}>Confirm Reservation</button>
                   <button className="modal-action-btn" style={{ background: "white", color: DARK, border: "1px solid #ddd" }}>Edit</button>
-                  <button className="modal-action-btn" style={{ background: "rgba(220,38,38,0.08)", color: "#dc2626", border: "1px solid rgba(220,38,38,0.2)" }}>Reject</button>
+                  <button className="modal-action-btn" style={{ background: "rgba(220,38,38,0.08)", color: "#dc2626", border: "1px solid rgba(220,38,38,0.2)" }} onClick={() => handleCancel(selectedRes)}>Reject</button>
                 </>}
                 {selectedRes.status === "checked-in" && <>
-                  <button className="modal-action-btn" style={{ background: DARK, color: "white" }}>Process Checkout</button>
+                  <button className="modal-action-btn" style={{ background: DARK, color: "white" }} onClick={() => handleCheckOut(selectedRes)}>Process Checkout</button>
                   <button className="modal-action-btn" style={{ background: "rgba(184,150,90,0.1)", color: GOLD, border: `1px solid rgba(184,150,90,0.3)` }}>Add Service</button>
                   <button className="modal-action-btn" style={{ background: "white", color: DARK, border: "1px solid #ddd" }}>View Bill</button>
                 </>}

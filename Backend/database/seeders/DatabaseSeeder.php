@@ -16,13 +16,34 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Create Default Admin User
+        // 1. Create Default Users
         $admin = User::updateOrCreate(
             ['email' => 'admin@alhambra.com'],
             [
                 'name' => 'Alhambra Admin',
                 'password' => Hash::make('password'),
                 'email_verified_at' => now(),
+                'role' => 'admin',
+            ]
+        );
+
+        $receptionist = User::updateOrCreate(
+            ['email' => 'receptionist@alhambra.com'],
+            [
+                'name' => 'Alhambra Receptionist',
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+                'role' => 'receptionist',
+            ]
+        );
+
+        $housekeeping = User::updateOrCreate(
+            ['email' => 'housekeeping@alhambra.com'],
+            [
+                'name' => 'Alhambra Housekeeping',
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+                'role' => 'housekeeping',
             ]
         );
 

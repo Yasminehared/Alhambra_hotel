@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 
 const GOLD = "#b8965a";
@@ -94,9 +95,9 @@ const HK_META = {
 
 const NAV_ITEMS = [
   { icon: <GridIcon />, label: "Overview", to: "/dashboard" },
-  { icon: <CalIcon />,  label: "Reservations", to: "/reservation" },
-  { icon: <BedIcon />,  label: "Chambres", to: "/chambre", active: true },
- 
+  { icon: <CalIcon />,  label: "Reservations", to: "/admin/reservation" },
+  { icon: <BedIcon />,  label: "Chambres", to: "/admin/chambres", active: true },
+  { icon: <WrenchIcon />, label: "Maintenance", to: "/maintenance" },
 ];
 
 export default function Chambres() {
@@ -106,19 +107,70 @@ export default function Chambres() {
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
 
+  const [roomsList, setRoomsList] = useState(rooms);
+  const [loading, setLoading] = useState(false);
+
+  const fetchRooms = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get("/api/rooms");
+      setRoomsList(res.data);
+    } catch (err) {
+      console.error("Error fetching rooms", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRooms();
+  }, []);
+
+  const handleCheckout = async (room) => {
+    try {
+      const reservationsRes = await axios.get("/api/reservations");
+      const activeRes = reservationsRes.data.find(res => {
+        return (res.room === room.id && res.status === "checked-in");
+      });
+
+      if (!activeRes) {
+        alert("No active checked-in reservation found for this room.");
+        return;
+      }
+
+      const resId = activeRes.db_id || activeRes.id;
+      await axios.put(`/api/reservations/${resId}/check-out`);
+      fetchRooms();
+      if (selectedRoom) closeModal();
+    } catch (err) {
+      alert("Error checking out: " + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handleUpdateRoom = async (room, payload) => {
+    try {
+      const dbId = room.db_id;
+      await axios.put(`/api/rooms/${dbId}`, payload);
+      fetchRooms();
+      if (selectedRoom) closeModal();
+    } catch (err) {
+      alert("Error updating room: " + (err.response?.data?.message || err.message));
+    }
+  };
+
   const openModal = (room) => { setSelectedRoom(room); setTimeout(() => setModalVisible(true), 10); };
   const closeModal = () => { setModalVisible(false); setTimeout(() => setSelectedRoom(null), 300); };
 
   const counts = {
-    all: rooms.length,
-    occupied: rooms.filter(r => r.status === "occupied").length,
-    available: rooms.filter(r => r.status === "available").length,
-    cleaning: rooms.filter(r => r.status === "cleaning").length,
+    all: roomsList.length,
+    occupied: roomsList.filter(r => r.status === "occupied").length,
+    available: roomsList.filter(r => r.status === "available").length,
+    cleaning: roomsList.filter(r => r.status === "cleaning").length,
   };
 
-  const floors = [...new Set(rooms.map(r => r.floor))].sort();
+  const floors = [...new Set(roomsList.map(r => r.floor))].sort();
 
-  const filtered = rooms.filter(r => {
+  const filtered = roomsList.filter(r => {
     const matchFilter = filter === "all" || r.status === filter;
     const matchFloor = floorFilter === "all" || r.floor === parseInt(floorFilter);
     const matchSearch = search === "" ||
@@ -128,7 +180,7 @@ export default function Chambres() {
     return matchFilter && matchFloor && matchSearch;
   });
 
-  const revenue = rooms.filter(r => r.status === "occupied").reduce((a, r) => a + r.price, 0);
+  const revenue = roomsList.filter(r => r.status === "occupied").reduce((a, r) => a + r.price, 0);
 
   return (
     <>
@@ -688,17 +740,16 @@ export default function Chambres() {
                     <div className="room-note">{room.note}</div>
                     <div className="room-actions" onClick={e => e.stopPropagation()}>
                       {room.status === "occupied" && <>
-                        <button className="action-btn secondary">Gérer</button>
-                        <button className="action-btn primary">Checkout</button>
+                        <button className="action-btn secondary" onClick={() => openModal(room)}>Gérer</button>
+                        <button className="action-btn primary" onClick={() => handleCheckout(room)}>Checkout</button>
                       </>}
                       {room.status === "available" && <>
-                        <button className="action-btn gold">Réserver</button>
-                        <button className="action-btn secondary">Inspect</button>
+                        <Link to={`/booking/${room.id}`} className="action-btn gold" style={{ textDecoration: "none", textAlign: "center" }}>Réserver</Link>
+                        <button className="action-btn secondary" onClick={() => handleUpdateRoom(room, { housekeeping_status: 'clean' })}>Inspect</button>
                       </>}
                       {room.status === "cleaning" && <>
-                        <button className="action-btn secondary">Assigner Ménage</button>
+                        <button className="action-btn secondary" onClick={() => handleUpdateRoom(room, { housekeeping_status: 'dirty' })}>Assigner Ménage</button>
                       </>}
-                      
                     </div>
                   </div>
                 </div>
@@ -785,17 +836,17 @@ export default function Chambres() {
 
               <div className="modal-actions">
                 {selectedRoom.status === "occupied" && <>
-                  <button className="modal-action-btn" style={{ background: DARK, color: "white" }}>Process Checkout</button>
+                  <button className="modal-action-btn" style={{ background: DARK, color: "white" }} onClick={() => handleCheckout(selectedRoom)}>Process Checkout</button>
                   <button className="modal-action-btn" style={{ background: "white", color: DARK, border: "1px solid #ddd" }}>Edit Stay</button>
                   <button className="modal-action-btn" style={{ background: "rgba(184,150,90,0.1)", color: GOLD, border: `1px solid rgba(184,150,90,0.3)` }}>Add Service</button>
                 </>}
                 {selectedRoom.status === "available" && <>
-                  <button className="modal-action-btn" style={{ background: GOLD, color: "white" }}>Book This Room</button>
-                  <button className="modal-action-btn" style={{ background: "white", color: DARK, border: "1px solid #ddd" }}>Block Room</button>
+                  <Link to={`/booking/${selectedRoom.id}`} className="modal-action-btn" style={{ background: GOLD, color: "white", textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center" }}>Book This Room</Link>
+                  <button className="modal-action-btn" style={{ background: "white", color: DARK, border: "1px solid #ddd" }} onClick={() => handleUpdateRoom(selectedRoom, { status: 'maintenance' })}>Block Room</button>
                 </>}
                 {selectedRoom.status === "cleaning" && <>
-                  <button className="modal-action-btn" style={{ background: "#d97706", color: "white" }}>Assign Housekeeping</button>
-                  <button className="modal-action-btn" style={{ background: "white", color: DARK, border: "1px solid #ddd" }}>Mark Clean</button>
+                  <button className="modal-action-btn" style={{ background: "#d97706", color: "white" }} onClick={() => handleUpdateRoom(selectedRoom, { housekeeping_status: 'dirty' })}>Assign Housekeeping</button>
+                  <button className="modal-action-btn" style={{ background: "white", color: DARK, border: "1px solid #ddd" }} onClick={() => handleUpdateRoom(selectedRoom, { housekeeping_status: 'clean' })}>Mark Clean</button>
                 </>}
               </div>
             </div>

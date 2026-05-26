@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Header from "../composant/header";
 import Footer from "../composant/footer";
+import { useAuth } from "../../context/AuthContext";
 
 const GOLD = "#b8965a";
 const DARK = "#1a1208";
@@ -11,17 +12,32 @@ export default function LoginPage() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [tab, setTab] = useState("login"); // "login" | "register"
   const [mounted, setMounted] = useState(false);
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     setTimeout(() => setMounted(true), 30);
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => setLoading(false), 2000);
+    setError("");
+    try {
+      const user = await login(form.email, form.password);
+      if (user.role === "housekeeping") {
+        navigate("/maintenance");
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || err.message || "Invalid credentials");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -310,6 +326,7 @@ export default function LoginPage() {
 
             {tab === "login" && (
               <form onSubmit={handleSubmit}>
+                {error && <p style={{ color: "#c0392b", fontSize: "0.8rem", marginBottom: "1rem", textAlign: "center" }}>{error}</p>}
                 <div className="form-group">
                   <label className="form-label">Email Address</label>
                   <input

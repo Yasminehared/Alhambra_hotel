@@ -35,7 +35,7 @@ class RoomResource extends Resource
                                 ->preload()
                                 ->searchable()
                                 ->required()
-                                ->label('Room Type / Category'),
+                                ->label(' / Category'),
                             Forms\Components\TextInput::make('room_number')
                                 ->required()
                                 ->placeholder('e.g. 104, V1')
