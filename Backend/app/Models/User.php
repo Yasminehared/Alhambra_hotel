@@ -12,8 +12,10 @@ use Illuminate\Notifications\Notifiable;
 
 use App\Enums\UserRole;
 use Spatie\Permission\Traits\HasRoles;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasRoles;
@@ -44,5 +46,15 @@ class User extends Authenticatable
             'role' => UserRole::class,
             'is_blocked' => 'boolean',
         ];
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        if ($this->is_blocked) {
+            return false;
+        }
+
+        $roleVal = $this->role ? $this->role->value : 'customer';
+        return in_array($roleVal, ['admin', 'receptionist', 'housekeeping']);
     }
 }

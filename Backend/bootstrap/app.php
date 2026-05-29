@@ -26,8 +26,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->appendToGroup('api', \App\Http\Middleware\EnsureUserNotBlocked::class);
 
         // Append Security Headers to ALL responses
-        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
-    })
+$middleware->api(append: [
+    \App\Http\Middleware\EnsureUserNotBlocked::class,
+]);    })
     ->withExceptions(function (Exceptions $exceptions): void {
 
         // ─── 404 Not Found ────────────────────────────────────────────────
