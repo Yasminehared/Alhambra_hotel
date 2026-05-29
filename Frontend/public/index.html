@@ -1,43 +1,98 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Experience the sovereign refinement of Andalusian heritage and modern premium hospitality at the Alhambra Hotel & Spa, Tanger, Morocco."
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>Alhambra Hotel & Spa · Luxury Tanger Stay</title>
+    <!-- ── Viewport & Mobile ──────────────────────────────────────────── -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Alhambra Hotel" />
+    <meta name="theme-color" content="#1a1208" />
+
+    <!-- ── Favicon & App Icons ───────────────────────────────────────── -->
+    <link rel="icon" type="image/x-icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="apple-touch-icon" sizes="512x512" href="%PUBLIC_URL%/logo512.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+    <!-- ── Primary SEO ────────────────────────────────────────────────── -->
+    <title>Alhambra Hotel &amp; Spa — Luxury Hospitality in Tanger, Morocco</title>
+    <meta name="description" content="Experience the sovereign refinement of Andalusian heritage at Alhambra Hotel &amp; Spa, Tanger. Luxury rooms, suites, and villas with world-class service." />
+    <meta name="keywords" content="Alhambra Hotel, Tanger hotel, luxury hotel Morocco, Spa Tanger, Andalusian hospitality, hotel booking Morocco" />
+    <meta name="author" content="Alhambra Hotel &amp; Spa" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://yourdomain.com" />
+
+    <!-- ── Open Graph / Facebook ──────────────────────────────────────── -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Alhambra Hotel &amp; Spa" />
+    <meta property="og:title" content="Alhambra Hotel &amp; Spa — Luxury Hospitality in Tanger, Morocco" />
+    <meta property="og:description" content="Experience sovereign refinement at Alhambra Hotel &amp; Spa, Tanger. Breathtaking views, world-class amenities, and authentic Andalusian heritage." />
+    <meta property="og:image" content="https://yourdomain.com/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Alhambra Hotel exterior with Andalusian architecture" />
+    <meta property="og:url" content="https://yourdomain.com" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- ── Twitter Card ───────────────────────────────────────────────── -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Alhambra Hotel &amp; Spa — Tanger, Morocco" />
+    <meta name="twitter:description" content="Luxury rooms, suites, and villas with authentic Andalusian heritage in the heart of Tanger." />
+    <meta name="twitter:image" content="https://yourdomain.com/og-image.jpg" />
+    <meta name="twitter:image:alt" content="Alhambra Hotel &amp; Spa" />
+
+    <!-- ── Performance Hints ──────────────────────────────────────────── -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+
+    <!-- ── Structured Data (Schema.org Hotel) ────────────────────────── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Hotel",
+      "name": "Alhambra Hotel & Spa",
+      "description": "Luxury hotel with Andalusian heritage in Tanger, Morocco",
+      "url": "https://yourdomain.com",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Tanger",
+        "addressCountry": "MA"
+      },
+      "starRating": {
+        "@type": "Rating",
+        "ratingValue": "5"
+      },
+      "amenityFeature": [
+        { "@type": "LocationFeatureSpecification", "name": "Spa", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "Restaurant", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "Pool", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "Free WiFi", "value": true }
+      ],
+      "hasMap": "https://maps.google.com/?q=Tanger+Morocco",
+      "potentialAction": {
+        "@type": "ReserveAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://yourdomain.com/booking",
+          "inLanguage": "en",
+          "actionPlatform": "http://schema.org/DesktopWebPlatform"
+        }
+      }
+    }
+    </script>
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>
+      <div style="text-align:center;padding:2rem;font-family:serif">
+        <h2>Alhambra Hotel &amp; Spa</h2>
+        <p>Please enable JavaScript to enjoy the full experience of our website.</p>
+      </div>
+    </noscript>
     <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
   </body>
 </html>

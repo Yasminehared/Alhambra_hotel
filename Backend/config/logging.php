@@ -127,6 +127,36 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        // ─── Production: Structured JSON Logs ──────────────────────────────
+        // Machine-readable format for log aggregation (Logtail, Datadog, etc.)
+        'json' => [
+            'driver'    => 'daily',
+            'path'      => storage_path('logs/laravel-json.log'),
+            'level'     => env('LOG_LEVEL', 'warning'),
+            'days'      => env('LOG_DAILY_DAYS', 30),
+            'formatter' => Monolog\Formatter\JsonFormatter::class,
+        ],
+
+        // ─── Security Audit Log ────────────────────────────────────────────
+        // Dedicated channel for login attempts, RBAC violations, and suspicious activity
+        'security' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/security.log'),
+            'level'  => 'info',
+            'days'   => 90,
+            'replace_placeholders' => true,
+        ],
+
+        // ─── API Error Tracking ────────────────────────────────────────────
+        // Separate channel for API-specific errors and 5xx responses
+        'api-errors' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/api-errors.log'),
+            'level'  => 'error',
+            'days'   => 60,
+            'replace_placeholders' => true,
+        ],
+
     ],
 
 ];

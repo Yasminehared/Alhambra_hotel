@@ -9,7 +9,8 @@ import {
   CreditCard, 
   Users, 
   LogOut,
-  Sparkles
+  Sparkles,
+  Mail
 } from "lucide-react";
 
 const GOLD = "#b8965a";
@@ -66,6 +67,12 @@ export default function Sidebar() {
       to: "/users",
       icon: <Users size={18} />,
       roles: ["admin"]
+    },
+    {
+      label: "Messages",
+      to: "/admin/messages",
+      icon: <Mail size={18} />,
+      roles: ["admin", "receptionist"]
     }
   ];
 

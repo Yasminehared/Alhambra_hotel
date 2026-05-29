@@ -10,12 +10,19 @@ const CREAM = "#fdf6ec";
 
 export default function LoginPage() {
   const [form, setForm] = useState({ email: "", password: "" });
+  const [registerForm, setRegisterForm] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    passwordConfirmation: "",
+  });
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [tab, setTab] = useState("login"); // "login" | "register"
   const [mounted, setMounted] = useState(false);
-  const { login } = useAuth();
+  const { login, register } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,6 +42,34 @@ export default function LoginPage() {
       }
     } catch (err) {
       setError(err.response?.data?.message || err.message || "Invalid credentials");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegisterSubmit = async (e) => {
+    e.preventDefault();
+    if (registerForm.password !== registerForm.passwordConfirmation) {
+      setError("Passwords do not match");
+      return;
+    }
+    setLoading(true);
+    setError("");
+    try {
+      const user = await register(
+        registerForm.firstName,
+        registerForm.lastName,
+        registerForm.email,
+        registerForm.password,
+        registerForm.passwordConfirmation
+      );
+      if (user.role === "housekeeping") {
+        navigate("/maintenance");
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || err.message || "Failed to register");
     } finally {
       setLoading(false);
     }
@@ -378,22 +413,44 @@ export default function LoginPage() {
             )}
 
             {tab === "register" && (
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleRegisterSubmit}>
+                {error && <p style={{ color: "#c0392b", fontSize: "0.8rem", marginBottom: "1rem", textAlign: "center" }}>{error}</p>}
                 <div className="form-group">
                   <div className="form-row">
                     <div>
                       <label className="form-label">First Name</label>
-                      <input className="form-input" type="text" placeholder="Ahmed" required />
+                      <input
+                        className="form-input"
+                        type="text"
+                        placeholder="Ahmed"
+                        value={registerForm.firstName}
+                        onChange={e => setRegisterForm(f => ({ ...f, firstName: e.target.value }))}
+                        required
+                      />
                     </div>
                     <div>
                       <label className="form-label">Last Name</label>
-                      <input className="form-input" type="text" placeholder="Benali" required />
+                      <input
+                        className="form-input"
+                        type="text"
+                        placeholder="Benali"
+                        value={registerForm.lastName}
+                        onChange={e => setRegisterForm(f => ({ ...f, lastName: e.target.value }))}
+                        required
+                      />
                     </div>
                   </div>
                 </div>
                 <div className="form-group">
                   <label className="form-label">Email Address</label>
-                  <input className="form-input" type="email" placeholder="your@email.com" required />
+                  <input
+                    className="form-input"
+                    type="email"
+                    placeholder="your@email.com"
+                    value={registerForm.email}
+                    onChange={e => setRegisterForm(f => ({ ...f, email: e.target.value }))}
+                    required
+                  />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Password</label>
@@ -402,6 +459,8 @@ export default function LoginPage() {
                       className="form-input"
                       type={showPass ? "text" : "password"}
                       placeholder="Min. 8 characters"
+                      value={registerForm.password}
+                      onChange={e => setRegisterForm(f => ({ ...f, password: e.target.value }))}
                       required
                       style={{ paddingRight: "60px" }}
                     />
@@ -412,7 +471,14 @@ export default function LoginPage() {
                 </div>
                 <div className="form-group">
                   <label className="form-label">Confirm Password</label>
-                  <input className="form-input" type="password" placeholder="Repeat password" required />
+                  <input
+                    className="form-input"
+                    type="password"
+                    placeholder="Repeat password"
+                    value={registerForm.passwordConfirmation}
+                    onChange={e => setRegisterForm(f => ({ ...f, passwordConfirmation: e.target.value }))}
+                    required
+                  />
                 </div>
 
                 <button type="submit" className={`form-submit ${loading ? "loading" : ""}`}>

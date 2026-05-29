@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import AboutUs from "../about-us";
 
+
 const GOLD = "#b8965a";
 const CREAM = "#f5f0e8";
 const DARK = "#1a1208";
@@ -122,10 +123,9 @@ export default function Footer() {
 
         {/* NAV LINKS (static) */}
         <nav className="footer-nav">
-          <Link to="../about-us">Notre Histoire</Link>
           <Link to="../about-us">About Us</Link>
           <Link to="../contact-us">Contact Us</Link>
-          <Link to="../terms">Conditions Générales</Link>
+          <Link to="../condition">Conditions </Link>
         </nav>
 
         {/* CONTENT */}

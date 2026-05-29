@@ -1,0 +1,291 @@
+name: 🚀 Production CD — Alhambra Hotel
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: 'Force deploy even with warnings?'
+        required: false
+        default: 'false'
+        type: boolean
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false   # Never cancel a running production deploy
+
+jobs:
+  # ─────────────────────────────────────────────
+  # Job 1: Full Test Suite Gate
+  # ─────────────────────────────────────────────
+  test-gate:
+    name: 🧪 Production Test Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: ⬇️ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐘 Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+          coverage: none
+          tools: composer:v2
+
+      - name: 📦 Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: Backend/vendor
+          key: composer-prod-${{ runner.os }}-${{ hashFiles('Backend/composer.lock') }}
+
+      - name: 📥 Install Backend Dependencies
+        working-directory: Backend
+        run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --optimize-autoloader
+
+      - name: ⚙️ Prepare Testing Environment
+        working-directory: Backend
+        run: |
+          cp .env.example .env
+          touch database/database.sqlite
+          php artisan key:generate
+
+      - name: ✅ Run Full PHPUnit Suite
+        working-directory: Backend
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ":memory:"
+        run: |
+          php artisan config:clear
+          php artisan test --stop-on-failure
+
+  # ─────────────────────────────────────────────
+  # Job 2: React Production Build
+  # ─────────────────────────────────────────────
+  react-production-build:
+    name: ⚛️ React Production Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: test-gate
+
+    steps:
+      - name: ⬇️ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: Frontend/package-lock.json
+
+      - name: 📥 Install Frontend Dependencies
+        working-directory: Frontend
+        run: npm ci --prefer-offline
+
+      - name: 🏗️ Build React for Production
+        working-directory: Frontend
+        env:
+          NODE_ENV: production
+          GENERATE_SOURCEMAP: false
+          CI: false
+          REACT_APP_API_URL: ${{ secrets.PRODUCTION_API_URL }}
+          REACT_APP_VERSION: ${{ github.sha }}
+        run: npm run build
+
+      - name: 📊 Bundle Analysis Report
+        working-directory: Frontend
+        run: |
+          echo "### 📦 Production Bundle Report" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "JS Files:" >> $GITHUB_STEP_SUMMARY
+          ls -lh build/static/js/*.js 2>/dev/null || echo "No JS files found"
+          du -sh build/static/js/*.js 2>/dev/null >> $GITHUB_STEP_SUMMARY || true
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "CSS Files:" >> $GITHUB_STEP_SUMMARY
+          du -sh build/static/css/*.css 2>/dev/null >> $GITHUB_STEP_SUMMARY || true
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Total Build:" >> $GITHUB_STEP_SUMMARY
+          du -sh build/ >> $GITHUB_STEP_SUMMARY || true
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: 🔒 Verify No Source Maps in Production
+        working-directory: Frontend
+        run: |
+          if find build -name "*.map" | grep -q .; then
+            echo "⚠️ WARNING: Source maps found in production build"
+          else
+            echo "✅ No source maps in production bundle"
+          fi
+
+      - name: 📦 Upload Production Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: react-production-build-${{ github.sha }}
+          path: Frontend/build/
+          retention-days: 30
+
+  # ─────────────────────────────────────────────
+  # Job 3: Laravel Pre-deploy Validation
+  # ─────────────────────────────────────────────
+  laravel-production-validation:
+    name: 🔧 Laravel Production Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: test-gate
+
+    steps:
+      - name: ⬇️ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐘 Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+          coverage: none
+
+      - name: 📥 Install Backend Dependencies
+        working-directory: Backend
+        run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --optimize-autoloader --no-dev
+
+      - name: ⚙️ Validate .env.example completeness
+        working-directory: Backend
+        run: |
+          echo "Validating .env.example has all required production keys..."
+          required_keys=("APP_NAME" "APP_ENV" "APP_KEY" "APP_URL" "DB_CONNECTION" "QUEUE_CONNECTION" "SESSION_DRIVER" "CACHE_STORE")
+          for key in "${required_keys[@]}"; do
+            if grep -q "^${key}=" .env.example; then
+              echo "✅ ${key} present"
+            else
+              echo "❌ MISSING: ${key}"
+              exit 1
+            fi
+          done
+
+      - name: ✅ Validate Production Config Caching
+        working-directory: Backend
+        run: |
+          cp .env.example .env
+          touch database/database.sqlite
+          php artisan key:generate
+          echo "Testing config cache compilation..."
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+          echo "✅ All caches compiled successfully"
+
+  # ─────────────────────────────────────────────
+  # Job 4: Production Deployment (SSH/Rsync)
+  # ─────────────────────────────────────────────
+  deploy-production:
+    name: 🚀 Deploy to Production VPS
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [ react-production-build, laravel-production-validation ]
+    environment:
+      name: production
+      url: ${{ secrets.PRODUCTION_URL }}
+
+    steps:
+      - name: ⬇️ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📥 Download React Build
+        uses: actions/download-artifact@v4
+        with:
+          name: react-production-build-${{ github.sha }}
+          path: Frontend/build
+
+      - name: 🔐 Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.PRODUCTION_SSH_KEY }}
+
+      - name: 🖥️ Add VPS to Known Hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.PRODUCTION_HOST }} >> ~/.ssh/known_hosts
+
+      - name: 📤 Deploy Laravel Backend via Rsync
+        run: |
+          rsync -avz --delete \
+            --exclude='.env' \
+            --exclude='storage/logs' \
+            --exclude='storage/app/public' \
+            --exclude='node_modules' \
+            --exclude='vendor' \
+            --exclude='.git' \
+            Backend/ ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }}:${{ secrets.BACKEND_PATH }}/
+
+      - name: 📤 Deploy React Frontend via Rsync
+        run: |
+          rsync -avz --delete \
+            Frontend/build/ \
+            ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }}:${{ secrets.FRONTEND_PATH }}/
+
+      - name: ⚙️ Run Laravel Post-Deploy Commands
+        run: |
+          ssh ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }} << 'ENDSSH'
+            set -e
+            cd ${{ secrets.BACKEND_PATH }}
+
+            echo "📦 Installing Composer dependencies..."
+            composer install --no-dev --optimize-autoloader --no-interaction --quiet
+
+            echo "⚙️ Caching Laravel configuration..."
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            php artisan event:cache
+
+            echo "🗄️ Running database migrations..."
+            php artisan migrate --force
+
+            echo "🔄 Restarting queue workers..."
+            php artisan queue:restart
+
+            echo "🧹 Clearing old caches..."
+            php artisan cache:clear
+            php artisan opcache:clear 2>/dev/null || true
+
+            echo "🔗 Creating storage symlink..."
+            php artisan storage:link 2>/dev/null || true
+
+            echo "✅ Deployment complete!"
+          ENDSSH
+
+      - name: 🏥 Post-Deploy Health Check
+        run: |
+          sleep 10
+          HTTP_STATUS=$(curl -o /dev/null -s -w "%{http_code}" ${{ secrets.PRODUCTION_URL }}/api/room-types)
+          if [ "$HTTP_STATUS" = "200" ]; then
+            echo "✅ Health check PASSED — API responding with 200"
+          else
+            echo "❌ Health check FAILED — API returned $HTTP_STATUS"
+            exit 1
+          fi
+
+      - name: 📢 Notify Deployment Success
+        if: success()
+        run: |
+          echo "### 🎉 Alhambra Hotel — Production Deployment Successful!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch | \`${{ github.ref_name }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Deployed By | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Time | $(date -u) |" >> $GITHUB_STEP_SUMMARY
+          echo "| URL | ${{ secrets.PRODUCTION_URL }} |" >> $GITHUB_STEP_SUMMARY
+
+      - name: 📢 Notify Deployment Failure
+        if: failure()
+        run: |
+          echo "### ❌ Alhambra Hotel — Production Deployment FAILED" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** \`${{ github.sha }}\` by ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Action Required:** Check the logs and rollback if needed." >> $GITHUB_STEP_SUMMARY

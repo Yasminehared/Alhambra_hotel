@@ -1,9 +1,18 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { User } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { user } = useAuth();
+
+  const getDashboardPath = () => {
+    if (!user) return "/log-in";
+    if (user.role === "housekeeping") return "/maintenance";
+    if (user.role === "admin" || user.role === "receptionist") return "/dashboard";
+    return "/profile";
+  };
 
   return (
     <>
@@ -190,17 +199,28 @@ export default function Header() {
           <Link to="../">✦ Alhambra ✦</Link>
         </div>
 
-        <ul className="nav-links right">
+        <ul className="nav-links right" style={{ alignItems: "center" }}>
           <li>
             <Link to="../about-us">About us</Link>
           </li>
           <li>
             <Link to="../contact-us">Contact us</Link>
           </li>
-          <ul className="nav-links right" style={{ gap: "1rem" }}>
+          <ul className="nav-links right" style={{ gap: "1rem", alignItems: "center" }}>
             <li>
-              <Link to="/log-in">
-                <User size={18} />
+              <Link to={getDashboardPath()}>
+                {user ? (
+                  <div style={{
+                    width: "28px", height: "28px", borderRadius: "50%",
+                    background: "#b8965a", color: "white", display: "flex",
+                    alignItems: "center", justifyContent: "center", fontSize: "0.75rem",
+                    fontWeight: "600", textTransform: "uppercase"
+                  }}>
+                    {user.name ? user.name[0] : "A"}
+                  </div>
+                ) : (
+                  <User size={18} />
+                )}
               </Link>
             </li>
           </ul>
@@ -238,8 +258,8 @@ export default function Header() {
         <Link to="/contact-us" onClick={() => setMenuOpen(false)}>
           Contact us
         </Link>
-        <Link to="/log-in" onClick={() => setMenuOpen(false)}>
-          Log in
+        <Link to={getDashboardPath()} onClick={() => setMenuOpen(false)}>
+          {user ? (user.role === "customer" ? "My Profile" : "Console") : "Log in"}
         </Link>
       </div>
     </>

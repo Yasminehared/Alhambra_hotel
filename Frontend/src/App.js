@@ -15,10 +15,13 @@ import Villas from "./hotel-alhambra/hotel-service/villas";
 import Home from "./hotel-alhambra/home";
 import Stay from "./hotel-alhambra/hotel-service/stay";
 
+
 // Admin console imports
 import DashboardConsole from "./hotel-alhambra/admin/dashboard";
 import PaymentsPage from "./hotel-alhambra/admin/payments";
 import UsersPage from "./hotel-alhambra/admin/users";
+import ProfilePage from "./hotel-alhambra/profile";
+import MessagesInboxPage from "./hotel-alhambra/admin/messages";
 
 // Context imports
 import { AuthProvider, useAuth } from "./context/AuthContext";
@@ -70,11 +73,34 @@ function AdminLayout({ allowedRoles, children }) {
   );
 }
 
+function ProtectedRoute({ children }) {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div style={{
+        display: "flex", justifyContent: "center", alignItems: "center",
+        height: "100vh", background: "#f4efe6", color: "#1a1208", fontSize: "1.2rem",
+        fontFamily: "'Cormorant Garamond', serif"
+      }}>
+        Loading...
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/log-in" replace />;
+  }
+
+  return children;
+}
+
 function App() {
   return (
     <AuthProvider>
       <Routes>
         {/* Public Routes */}
+
         <Route path="/" element={<Home />} />
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/stay" element={<Stay />} />
@@ -89,6 +115,14 @@ function App() {
         <Route path="/hotel-service/villas" element={<Villas />} />
         <Route path="/log-in" element={<LoginPage />} />
         <Route path="/booking/:roomId" element={<BookingPage />} />
+        <Route 
+          path="/profile" 
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          } 
+        />
 
         {/* Protected Dashboard & Operations Routes */}
         <Route 
@@ -136,6 +170,14 @@ function App() {
           element={
             <AdminLayout allowedRoles={["admin"]}>
               <UsersPage />
+            </AdminLayout>
+          } 
+        />
+        <Route 
+          path="/admin/messages" 
+          element={
+            <AdminLayout allowedRoles={["admin", "receptionist"]}>
+              <MessagesInboxPage />
             </AdminLayout>
           } 
         />

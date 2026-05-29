@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 import Header from "./composant/header";
 import Footer from "./composant/footer";
 
@@ -17,10 +18,17 @@ export default function ContactPage() {
     setTimeout(() => setMounted(true), 30);
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => { setLoading(false); setSent(true); }, 2200);
+    try {
+      await axios.post("/api/contact", form);
+      setSent(true);
+    } catch (err) {
+      alert("Failed to send message: " + (err.response?.data?.message || err.message));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

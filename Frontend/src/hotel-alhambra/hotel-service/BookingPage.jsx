@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../../context/AuthContext";
 
 const labelStyle = {
   display: "block",
@@ -26,6 +27,7 @@ const inputStyle = {
 
 export default function BookingPage() {
   const { roomId } = useParams();
+  const { user } = useAuth();
   const [roomTypes, setRoomTypes] = useState([]);
   const [form, setForm] = useState({
     check_in: "", check_out: "",
@@ -36,6 +38,17 @@ export default function BookingPage() {
   });
   const [status, setStatus] = useState(null); // null | "loading" | "success" | "error"
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    if (user) {
+      setForm(prev => ({
+        ...prev,
+        full_name: user.name || "",
+        email: user.email || "",
+        phone: user.phone || "",
+      }));
+    }
+  }, [user]);
 
   useEffect(() => {
     async function loadRoomTypes() {

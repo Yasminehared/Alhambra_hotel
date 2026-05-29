@@ -41,6 +41,28 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const register = async (firstName, lastName, email, password, passwordConfirmation) => {
+    // 1. Initialize CSRF protection cookie (standard handshake)
+    try {
+      await axios.get("/api/me").catch(() => {});
+    } catch (e) {}
+
+    // 2. Perform Register
+    const res = await axios.post("/api/register", {
+      first_name: firstName,
+      last_name: lastName,
+      email,
+      password,
+      password_confirmation: passwordConfirmation,
+    });
+    if (res.data.success) {
+      setUser(res.data.data.user);
+      return res.data.data.user;
+    } else {
+      throw new Error(res.data.message || "Failed to register");
+    }
+  };
+
   const logout = async () => {
     try {
       await axios.post("/api/logout");
@@ -52,7 +74,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, register, isAuthenticated: !!user }}>
       {children}
     </AuthContext.Provider>
   );
