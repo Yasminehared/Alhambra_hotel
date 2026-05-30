@@ -97,6 +97,15 @@ docker compose down
 docker compose logs backend
 ```
 
+**Frontend build failed (`npm run build` exit code 1)**
+
+Usually ESLint warnings with `CI=true`. Pull latest `Hatim_branch` and rebuild:
+
+```powershell
+docker compose build frontend --no-cache
+docker compose up -d
+```
+
 **Blank page**
 
 ```powershell
