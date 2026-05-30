@@ -20,13 +20,13 @@ class RoomAvailabilityService
         ?int $roomTypeId = null
     ): Collection {
         $query = Room::query()
-            ->where('is_active', true)
-            ->where('status', '!=', RoomStatus::OUT_OF_SERVICE)
-            ->whereNotIn('id', $this->getBlockedRoomIds($checkIn, $checkOut))
+            ->where('rooms.is_active', true)
+            ->where('rooms.status', '!=', RoomStatus::OUT_OF_SERVICE)
+            ->whereNotIn('rooms.id', $this->getBlockedRoomIds($checkIn, $checkOut))
             ->with('roomType', 'amenities');
 
         if ($roomTypeId) {
-            $query->where('room_type_id', $roomTypeId);
+            $query->where('rooms.room_type_id', $roomTypeId);
         }
 
         return $query->get();
@@ -46,8 +46,8 @@ class RoomAvailabilityService
         }
 
         // Also verify none are out_of_service
-        return Room::whereIn('id', $roomIds)
-            ->where('status', RoomStatus::OUT_OF_SERVICE)
+        return Room::whereIn('rooms.id', $roomIds)
+            ->where('rooms.status', RoomStatus::OUT_OF_SERVICE)
             ->doesntExist();
     }
 

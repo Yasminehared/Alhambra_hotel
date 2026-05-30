@@ -112,7 +112,7 @@ class ReservationResource extends Resource
                                             }
 
                                             if (!empty($blockedIds)) {
-                                                $query->whereNotIn('id', $blockedIds);
+                                                $query->whereKeyNot($blockedIds);
                                             }
                                         } catch (\Exception $e) {
                                         }
