@@ -25,6 +25,7 @@ class MaintenanceTicket extends Model
         'resolution_notes',
         'reported_at',
         'resolved_at',
+        'created_by',
     ];
 
     protected $casts = [

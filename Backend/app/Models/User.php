@@ -43,4 +43,27 @@ class User extends Authenticatable
             'role' => UserRole::class,
         ];
     }
+
+    public function isStaff(): bool
+    {
+        return in_array($this->role, [
+            UserRole::ADMIN,
+            UserRole::RECEPTIONIST,
+            UserRole::HOUSEKEEPING,
+        ], true);
+    }
+
+    public function hasRole(UserRole|string ...$roles): bool
+    {
+        $current = $this->role instanceof UserRole ? $this->role->value : (string) $this->role;
+
+        foreach ($roles as $role) {
+            $value = $role instanceof UserRole ? $role->value : $role;
+            if ($current === $value) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

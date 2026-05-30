@@ -16,6 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'api/*',
         ]);
+        $middleware->alias([
+            'staff' => \App\Http\Middleware\EnsureStaff::class,
+            'role' => \App\Http\Middleware\EnsureRole::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
