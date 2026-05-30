@@ -3,7 +3,9 @@ set -e
 
 cd /var/www/html
 
-if [ ! -f .env ]; then
+if [ ! -f .env ] && [ -f .env.docker ]; then
+  cp .env.docker .env
+elif [ ! -f .env ]; then
   cp .env.example .env 2>/dev/null || true
 fi
 

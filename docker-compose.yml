@@ -40,6 +40,7 @@ services:
     restart: unless-stopped
     env_file:
       - .env.docker
+    # Copy docker/alhambra.env.example to .env.docker before first run (see DOCKER.md)
     environment:
       DB_HOST: mysql
       DB_PORT: 3306

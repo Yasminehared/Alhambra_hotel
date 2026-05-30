@@ -28,6 +28,7 @@ COPY Backend/composer.json Backend/composer.lock ./
 RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
 
 COPY Backend/ .
+COPY docker/alhambra.env.example /var/www/html/.env.docker.example
 RUN composer dump-autoload --optimize \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache

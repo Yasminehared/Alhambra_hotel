@@ -8,8 +8,8 @@ if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
 }
 
 if (-not (Test-Path ".env.docker")) {
-    Copy-Item ".env.docker.example" ".env.docker"
-    Write-Host "Created .env.docker from example." -ForegroundColor Yellow
+    Copy-Item "docker\alhambra.env.example" ".env.docker"
+    Write-Host "Created .env.docker from docker\alhambra.env.example" -ForegroundColor Yellow
 }
 
 Write-Host "Building and starting Alhambra (first run may take 10+ minutes)..." -ForegroundColor Cyan

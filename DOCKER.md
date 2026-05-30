@@ -17,8 +17,8 @@ This stack avoids slow Windows `npm start` and `php artisan serve` by running:
 ```powershell
 cd Alhambra_hotel-main
 
-# Copy env file (once)
-copy .env.docker.example .env.docker
+# Copy env file (once) — APP_KEY is generated automatically on first start
+copy docker\alhambra.env.example .env.docker
 
 # First time (build images — 5–15 min)
 docker compose up --build -d
