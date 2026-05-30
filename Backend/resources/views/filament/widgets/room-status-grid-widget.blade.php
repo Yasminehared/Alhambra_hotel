@@ -7,7 +7,7 @@
         <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-2">
             @foreach ($this->getRooms() as $room)
                 @php
-                    $status = $room->status?->value ?? $room->status;
+                    $status = $room->status?->value;
                     $bgClass = match ($status) {
                         'available' => 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800',
                         'occupied' => 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/30 dark:text-rose-400 dark:border-rose-800',

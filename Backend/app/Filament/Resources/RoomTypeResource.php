@@ -88,18 +88,19 @@ class RoomTypeResource extends Resource
                             ->placeholder('New amenity...')
                             ->separator(',')
                             ->columnSpanFull(),
+                    Forms\Components\FileUpload::make('hero_image')
+                        ->label('Hero Image (Main Card / Banner)')
+                        ->image()
+                        ->directory('gallery')
+                        ->columnSpanFull(),
 
-                        Forms\Components\TextInput::make('hero_image')
-                            ->url()
-                            ->maxLength(2048)
-                            ->label('Hero Image URL')
-                            ->placeholder('HTTPS link to a premium image')
-                            ->columnSpanFull(),
-
-                        Forms\Components\TagsInput::make('images')
-                            ->placeholder('Add image URL...')
-                            ->columnSpanFull()
-                            ->label('Additional Gallery Image URLs'),
+                    Forms\Components\FileUpload::make('images')
+                        ->label('Gallery Images')
+                        ->multiple()
+                        ->image()
+                        ->directory('gallery')
+                        ->reorderable()
+                        ->columnSpanFull()
                     ]),
 
                 Forms\Components\Section::make('Descriptions & Status')

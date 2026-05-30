@@ -5,13 +5,20 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Room;
 use App\Enums\RoomStatus;
+use App\Enums\UserRole;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class RoomController extends Controller
 {
     public function index()
     {
+        $user = Auth::user();
+        if (!$user || $user->role !== UserRole::ADMIN) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $rooms = Room::with([
             'roomType', 
             'amenities', 
@@ -49,6 +56,11 @@ class RoomController extends Controller
 
     public function update(Request $request, Room $room)
     {
+        $user = Auth::user();
+        if (!$user || $user->role !== UserRole::ADMIN) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $validated = $request->validate([
             'status'              => ['nullable', 'string', Rule::in(['available', 'occupied', 'maintenance', 'cleaning'])],
             'housekeeping_status' => ['nullable', 'string', Rule::in(['clean', 'dirty'])],

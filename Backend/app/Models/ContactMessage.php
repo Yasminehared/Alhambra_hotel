@@ -19,8 +19,16 @@ class ContactMessage extends Model
         'reply',
     ];
 
+    /**
+     * Default status for new messages is 'unread'.
+     */
+    protected $attributes = [
+        'status' => 'unread',
+    ];
+
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
 }
+

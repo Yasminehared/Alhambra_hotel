@@ -78,16 +78,16 @@ Schedule::call(function () {
 
 // ─── Maintenance Ticket Auto-Escalation ───────────────────────────────────────
 
-// Flag overdue maintenance tickets (open > 48 hours) as urgent
+// Flag overdue maintenance tickets (pending/in-progress > 48 hours) as critical priority
 Schedule::call(function () {
-    $overdue = \App\Models\MaintenanceTicket::where('status', 'open')
+    $overdue = \App\Models\MaintenanceTicket::whereIn('status', ['pending', 'in_progress'])
         ->where('created_at', '<', now()->subHours(48))
-        ->where('priority', '!=', 'urgent')
+        ->where('priority', '!=', 'critical')
         ->get();
 
     foreach ($overdue as $ticket) {
-        $ticket->update(['priority' => 'urgent']);
-        Log::info("Scheduler: Maintenance ticket #{$ticket->id} auto-escalated to urgent");
+        $ticket->update(['priority' => 'critical']);
+        Log::info("Scheduler: Maintenance ticket #{$ticket->id} auto-escalated to critical");
     }
 })
 ->everyTwoHours()

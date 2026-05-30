@@ -44,12 +44,6 @@ class MaintenanceAlertsWidget extends BaseWidget
                     ->alignCenter(),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
-                    ->color(fn ($state): string => match ($state?->value ?? $state) {
-                        'pending' => 'warning',
-                        'in_progress' => 'info',
-                        default => 'gray',
-                    })
-                    ->formatStateUsing(fn ($state) => ucfirst($state?->value ?? $state))
                     ->alignCenter(),
                 Tables\Columns\TextColumn::make('reported_at')
                     ->dateTime('M d, H:i')

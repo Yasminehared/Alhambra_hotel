@@ -580,7 +580,7 @@ export default function Villas() {
                   <span className="villa-index">0{i + 1}</span>
                   <p className="villa-size">{villa.size_sqm} m²</p>
                   <h2 className="villa-name">{villa.name}</h2>
-                  <p className="villa-desc">{villa.description}</p>
+                  <p className="villa-desc" dangerouslySetInnerHTML={{ __html: villa.description }} />
                   <div className="villa-features">
                     {(villa.amenities || []).map((f) => (
                       <span key={f.id || f.name} className="villa-feature">{f.name}</span>

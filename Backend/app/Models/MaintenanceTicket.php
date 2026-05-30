@@ -54,7 +54,7 @@ class MaintenanceTicket extends Model
         // Check if there are any active blocking tickets for this room
         $hasActiveBlocking = self::where('room_id', $this->room_id)
             ->where('blocks_room', true)
-            ->whereIn('status', [MaintenanceStatus::PENDING->value, MaintenanceStatus::IN_PROGRESS->value])
+            ->whereIn('status', [MaintenanceStatus::PENDING, MaintenanceStatus::IN_PROGRESS])
             ->exists();
 
         if ($hasActiveBlocking) {

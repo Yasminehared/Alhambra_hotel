@@ -10,6 +10,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use App\Enums\MaintenanceStatus;
 
 class MaintenanceTicketResource extends Resource
 {
@@ -33,7 +34,10 @@ class MaintenanceTicketResource extends Resource
                         Forms\Components\Grid::make(2)->schema([
                             Forms\Components\Select::make('room_id')
                                 ->relationship('room')
-                                ->getOptionLabelFromRecordUsing(fn (Room $record) => "Room {$record->room_number} — {$record->roomType->name} ({$record->status})")
+                                ->getOptionLabelFromRecordUsing(
+                                    fn (Room $record) =>
+                                        "Room {$record->room_number} — {$record->roomType->name} ({$record->status->label()})"
+                                )
                                 ->searchable()
                                 ->preload()
                                 ->required()
@@ -55,14 +59,9 @@ class MaintenanceTicketResource extends Resource
                         Forms\Components\Grid::make(3)->schema([
                             Forms\Components\Select::make('status')
                                 ->required()
-                                ->options([
-                                    'pending' => 'Pending Assignment',
-                                    'in_progress' => 'In Progress (Repairing)',
-                                    'resolved' => 'Resolved',
-                                    'cancelled' => 'Cancelled',
-                                ])
+                                ->options(MaintenanceStatus::options())
                                 ->native(false)
-                                ->default('pending'),
+                                ->default(MaintenanceStatus::PENDING->value),
                             Forms\Components\Select::make('priority')
                                 ->required()
                                 ->options([
@@ -122,14 +121,6 @@ class MaintenanceTicketResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'pending' => 'warning',
-                        'in_progress' => 'info',
-                        'resolved' => 'success',
-                        'cancelled' => 'gray',
-                        default => 'gray',
-                    })
-                    ->formatStateUsing(fn (string $state): string => ucfirst($state))
                     ->sortable()
                     ->alignCenter(),
                 Tables\Columns\TextColumn::make('priority')
@@ -166,12 +157,7 @@ class MaintenanceTicketResource extends Resource
             ->defaultSort('reported_at', 'desc')
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
-                    ->options([
-                        'pending' => 'Pending',
-                        'in_progress' => 'In Progress',
-                        'resolved' => 'Resolved',
-                        'cancelled' => 'Cancelled',
-                    ]),
+                    ->options(MaintenanceStatus::options()),
                 Tables\Filters\SelectFilter::make('priority')
                     ->options([
                         'low' => 'Low',
@@ -188,7 +174,7 @@ class MaintenanceTicketResource extends Resource
                         ->label('Mark In Progress')
                         ->icon('heroicon-o-play')
                         ->color('info')
-                        ->visible(fn (MaintenanceTicket $record): bool => $record->status?->value === 'pending')
+                        ->visible(fn (MaintenanceTicket $record): bool => $record->status === MaintenanceStatus::PENDING)
                         ->action(function (MaintenanceTicket $record) {
                             try {
                                 app(\App\Services\MaintenanceService::class)->updateStatus(
@@ -213,7 +199,7 @@ class MaintenanceTicketResource extends Resource
                         ->label('Resolve Ticket')
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
-                        ->visible(fn (MaintenanceTicket $record): bool => in_array($record->status?->value, ['pending', 'in_progress']))
+                        ->visible(fn (MaintenanceTicket $record): bool => in_array($record->status, [MaintenanceStatus::PENDING, MaintenanceStatus::IN_PROGRESS]))
                         ->form([
                             Forms\Components\Textarea::make('resolution_notes')
                                 ->required()

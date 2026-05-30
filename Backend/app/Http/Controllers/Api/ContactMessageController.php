@@ -38,7 +38,7 @@ class ContactMessageController extends Controller
     public function index()
     {
         $user = Auth::user();
-        if (!$user || ($user->role !== UserRole::ADMIN && $user->role !== UserRole::RECEPTIONIST)) {
+        if (!$user || $user->role !== UserRole::ADMIN) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -54,7 +54,7 @@ class ContactMessageController extends Controller
     public function reply(Request $request, ContactMessage $message)
     {
         $user = Auth::user();
-        if (!$user || ($user->role !== UserRole::ADMIN && $user->role !== UserRole::RECEPTIONIST)) {
+        if (!$user || $user->role !== UserRole::ADMIN) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -80,7 +80,7 @@ class ContactMessageController extends Controller
     public function destroy(ContactMessage $message)
     {
         $user = Auth::user();
-        if (!$user || ($user->role !== UserRole::ADMIN && $user->role !== UserRole::RECEPTIONIST)) {
+        if (!$user || $user->role !== UserRole::ADMIN) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 

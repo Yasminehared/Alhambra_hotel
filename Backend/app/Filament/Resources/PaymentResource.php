@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PaymentResource\Pages;
 use App\Models\Payment;
+use App\Enums\PaymentStatus;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -54,15 +55,10 @@ class PaymentResource extends Resource
                                 ->required()
                                 ->label('Payment Method'),
                             Forms\Components\Select::make('payment_status')
-                                ->options([
-                                    'unpaid' => 'Unpaid',
-                                    'partial' => 'Partial',
-                                    'paid' => 'Paid',
-                                    'refunded' => 'Refunded',
-                                ])
+                                ->options(PaymentStatus::options())
                                 ->native(false)
                                 ->required()
-                                ->default('paid')
+                                ->default(PaymentStatus::PAID->value)
                                 ->label('Status'),
                             Forms\Components\DateTimePicker::make('paid_at')
                                 ->default(now())
@@ -106,14 +102,6 @@ class PaymentResource extends Resource
                     ->alignCenter(),
                 Tables\Columns\TextColumn::make('payment_status')
                     ->badge()
-                    ->color(fn ($state): string => match ($state?->value ?? $state) {
-                        'unpaid' => 'danger',
-                        'partial' => 'warning',
-                        'paid' => 'success',
-                        'refunded' => 'gray',
-                        default => 'gray',
-                    })
-                    ->formatStateUsing(fn ($state) => ucfirst($state?->value ?? $state))
                     ->sortable()
                     ->alignCenter(),
                 Tables\Columns\TextColumn::make('paid_at')
@@ -131,12 +119,7 @@ class PaymentResource extends Resource
                         'refund' => 'Refund',
                     ]),
                 Tables\Filters\SelectFilter::make('payment_status')
-                    ->options([
-                        'unpaid' => 'Unpaid',
-                        'partial' => 'Partial',
-                        'paid' => 'Paid',
-                        'refunded' => 'Refunded',
-                    ]),
+                    ->options(PaymentStatus::options()),
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
@@ -144,7 +127,7 @@ class PaymentResource extends Resource
                         ->label('Process Refund')
                         ->icon('heroicon-o-arrow-path')
                         ->color('danger')
-                        ->visible(fn (Payment $record): bool => $record->amount > 0 && $record->payment_status?->value === 'paid')
+                        ->visible(fn (Payment $record): bool => $record->amount > 0 && $record->payment_status === PaymentStatus::PAID)
                         ->form([
                             Forms\Components\TextInput::make('amount')
                                 ->numeric()

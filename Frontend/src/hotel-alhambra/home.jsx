@@ -613,11 +613,9 @@ Link {
               Discover a sanctuary dedicated to relaxation,
               rejuvenation and holistic wellbeing.
             </p>
- 
-            <Link To="spa">
+            <Link to="/hotel-service/spa">
               Discover Spa
             </Link>
- 
             <div className="spa__img-grid">
  
               <div className="spa__img-thumb-wrapper">

@@ -54,7 +54,6 @@ class User extends Authenticatable implements FilamentUser
             return false;
         }
 
-        $roleVal = $this->role ? $this->role->value : 'customer';
-        return in_array($roleVal, ['admin', 'receptionist', 'housekeeping']);
+        return $this->role === UserRole::ADMIN;
     }
 }

@@ -77,9 +77,10 @@ export default function RoomDetailPage() {
         <h1 style={{ fontFamily: "Cormorant Garamond, serif", fontWeight: 300, fontSize: "3rem", color: "#3b2e1e", marginBottom: "1.5rem" }}>
           {room.name}
         </h1>
-        <p style={{ fontSize: "0.95rem", lineHeight: 1.9, color: "#6b5c4c", marginBottom: "2.5rem" }}>
-          {room.description}
-        </p>
+        <p
+          style={{ fontSize: "0.95rem", lineHeight: 1.9, color: "#6b5c4c", marginBottom: "2.5rem" }}
+          dangerouslySetInnerHTML={{ __html: room.description }}
+        />
 
         <button
           onClick={() => navigate(`/booking/${room.id}`)}

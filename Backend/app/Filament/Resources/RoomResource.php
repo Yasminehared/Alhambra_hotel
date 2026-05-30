@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\RoomResource\Pages;
 use App\Models\Room;
+use App\Enums\RoomStatus;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -51,14 +52,9 @@ class RoomResource extends Resource
                         Forms\Components\Grid::make(2)->schema([
                             Forms\Components\Select::make('status')
                                 ->required()
-                                ->options([
-                                    'available' => 'Available (Clean & Ready)',
-                                    'occupied' => 'Occupied (Guest inside)',
-                                    'maintenance' => 'Maintenance (Repairing)',
-                                    'out_of_service' => 'Out Of Service',
-                                ])
+                                ->options(RoomStatus::options())
                                 ->native(false)
-                                ->default('available'),
+                                ->default(RoomStatus::AVAILABLE->value),
                             Forms\Components\Toggle::make('is_active')
                                 ->label('Active & Rentable')
                                 ->helperText('Disable to completely hide this room from front-office and booking channels.')
@@ -102,20 +98,6 @@ class RoomResource extends Resource
                     ->alignCenter(),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'available' => 'success',
-                        'occupied' => 'danger',
-                        'maintenance' => 'warning',
-                        'out_of_service' => 'gray',
-                        default => 'gray',
-                    })
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'available' => 'Available',
-                        'occupied' => 'Occupied',
-                        'maintenance' => 'Maintenance',
-                        'out_of_service' => 'Out Of Service',
-                        default => ucfirst($state),
-                    })
                     ->sortable()
                     ->alignCenter(),
                 Tables\Columns\IconColumn::make('is_active')
@@ -134,12 +116,7 @@ class RoomResource extends Resource
                     ->relationship('roomType', 'name')
                     ->label('Category'),
                 Tables\Filters\SelectFilter::make('status')
-                    ->options([
-                        'available' => 'Available',
-                        'occupied' => 'Occupied',
-                        'maintenance' => 'Maintenance',
-                        'out_of_service' => 'Out Of Service',
-                    ]),
+                    ->options(RoomStatus::options()),
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
@@ -147,7 +124,7 @@ class RoomResource extends Resource
                         ->label('Put in Maintenance')
                         ->icon('heroicon-o-wrench-screwdriver')
                         ->color('warning')
-                        ->visible(fn (Room $record): bool => $record->status?->value === 'available')
+                        ->visible(fn (Room $record): bool => $record->status === RoomStatus::AVAILABLE)
                         ->form([
                             Forms\Components\TextInput::make('title')
                                 ->required()

@@ -1,16 +1,28 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import Header from "./composant/header";
 import Footer from "./composant/footer";
 import { useAuth } from "../context/AuthContext";
-import { User, Shield, Phone, Globe, FileText, Lock } from "lucide-react";
+import { User, Shield, Phone, Globe, FileText, Lock, Calendar, DollarSign } from "lucide-react";
 
 const GOLD = "#b8965a";
 const DARK = "#1a1208";
 const CREAM = "#fdf6ec";
 
+const STATUS_META = {
+  "confirmed":   { label: "Confirmed",   color: "#2563eb", bg: "rgba(37,99,235,0.1)"  },
+  "pending":     { label: "Pending",     color: "#d97706", bg: "rgba(217,119,6,0.1)"  },
+  "checked-in":  { label: "Checked In",  color: "#16a34a", bg: "rgba(22,163,74,0.1)"  },
+  "checked-out": { label: "Checked Out", color: "#6b7280", bg: "rgba(107,114,128,0.1)" },
+  "cancelled":   { label: "Cancelled",   color: "#dc2626", bg: "rgba(220,38,38,0.1)" },
+};
+
 export default function ProfilePage() {
   const { user, login } = useAuth();
+  const [activeTab, setActiveTab] = useState("settings"); // "settings" | "reservations"
+  const [reservations, setReservations] = useState([]);
+  const [resLoading, setResLoading] = useState(false);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -24,6 +36,18 @@ export default function ProfilePage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
+  const fetchMyReservations = async () => {
+    try {
+      setResLoading(true);
+      const res = await axios.get("/api/reservations");
+      setReservations(res.data);
+    } catch (err) {
+      console.error("Failed to fetch reservations", err);
+    } finally {
+      setResLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (user) {
       setForm({
@@ -35,6 +59,7 @@ export default function ProfilePage() {
         password: "",
         password_confirmation: "",
       });
+      fetchMyReservations();
     }
   }, [user]);
 
@@ -228,99 +253,205 @@ export default function ProfilePage() {
 
       <div className="profile-container">
         <div className="profile-header">
-          <h1>Profile Settings</h1>
-          <p>Manage your account credentials & contact info</p>
+          <h1>My Alhambra Account</h1>
+          <p>Manage your profile, credentials & bookings</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="form-grid">
-          {message && <div className="alert success">{message}</div>}
-          {error && <div className="alert error">{error}</div>}
-
-          <div className="form-section-title">Personal Details</div>
-
-          <div className="form-group">
-            <label className="form-label"><User size={12} color={GOLD} /> Full Name</label>
-            <input
-              className="form-input"
-              type="text"
-              required
-              value={form.name}
-              onChange={e => setForm({ ...form, name: e.target.value })}
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label"><Shield size={12} color={GOLD} /> Email Address</label>
-            <input
-              className="form-input"
-              type="email"
-              required
-              value={form.email}
-              onChange={e => setForm({ ...form, email: e.target.value })}
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label"><Phone size={12} color={GOLD} /> Phone Number</label>
-            <input
-              className="form-input"
-              type="tel"
-              placeholder="+212 600 000 000"
-              value={form.phone}
-              onChange={e => setForm({ ...form, phone: e.target.value })}
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label"><Globe size={12} color={GOLD} /> Nationality</label>
-            <input
-              className="form-input"
-              type="text"
-              placeholder="e.g. Moroccan"
-              value={form.nationality}
-              onChange={e => setForm({ ...form, nationality: e.target.value })}
-            />
-          </div>
-
-          <div className="form-group full-width">
-            <label className="form-label"><FileText size={12} color={GOLD} /> Passport Number</label>
-            <input
-              className="form-input"
-              type="text"
-              placeholder="e.g. AB123456"
-              value={form.passport_number}
-              onChange={e => setForm({ ...form, passport_number: e.target.value })}
-            />
-          </div>
-
-          <div className="form-section-title">Change Password (Leave blank to keep current)</div>
-
-          <div className="form-group">
-            <label className="form-label"><Lock size={12} color={GOLD} /> New Password</label>
-            <input
-              className="form-input"
-              type="password"
-              placeholder="Min. 8 characters"
-              value={form.password}
-              onChange={e => setForm({ ...form, password: e.target.value })}
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label"><Lock size={12} color={GOLD} /> Confirm New Password</label>
-            <input
-              className="form-input"
-              type="password"
-              placeholder="Repeat password"
-              value={form.password_confirmation}
-              onChange={e => setForm({ ...form, password_confirmation: e.target.value })}
-            />
-          </div>
-
-          <button type="submit" className="submit-btn" disabled={loading}>
-            {loading ? "Saving changes..." : "Save My Settings"}
+        <div className="profile-tabs" style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '2.5rem', borderBottom: '1px solid rgba(184,150,90,0.15)', paddingBottom: '1rem' }}>
+          <button 
+            type="button"
+            className={`profile-tab ${activeTab === 'settings' ? 'active' : ''}`} 
+            onClick={() => setActiveTab('settings')}
+            style={{
+              padding: '10px 24px',
+              fontFamily: 'Jost, sans-serif',
+              fontSize: '0.85rem',
+              fontWeight: 600,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: activeTab === 'settings' ? DARK : '#aaa',
+              borderBottom: activeTab === 'settings' ? `2px solid ${GOLD}` : '2px solid transparent',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            My Profile Settings
           </button>
-        </form>
+          <button 
+            type="button"
+            className={`profile-tab ${activeTab === 'reservations' ? 'active' : ''}`} 
+            onClick={() => setActiveTab('reservations')}
+            style={{
+              padding: '10px 24px',
+              fontFamily: 'Jost, sans-serif',
+              fontSize: '0.85rem',
+              fontWeight: 600,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: activeTab === 'reservations' ? DARK : '#aaa',
+              borderBottom: activeTab === 'reservations' ? `2px solid ${GOLD}` : '2px solid transparent',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            My Reservations
+          </button>
+        </div>
+
+        {activeTab === "settings" ? (
+          <form onSubmit={handleSubmit} className="form-grid">
+            {message && <div className="alert success">{message}</div>}
+            {error && <div className="alert error">{error}</div>}
+
+            <div className="form-section-title">Personal Details</div>
+
+            <div className="form-group">
+              <label className="form-label"><User size={12} color={GOLD} /> Full Name</label>
+              <input
+                className="form-input"
+                type="text"
+                required
+                value={form.name}
+                onChange={e => setForm({ ...form, name: e.target.value })}
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label"><Shield size={12} color={GOLD} /> Email Address</label>
+              <input
+                className="form-input"
+                type="email"
+                required
+                value={form.email}
+                onChange={e => setForm({ ...form, email: e.target.value })}
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label"><Phone size={12} color={GOLD} /> Phone Number</label>
+              <input
+                className="form-input"
+                type="tel"
+                placeholder="+212 600 000 000"
+                value={form.phone}
+                onChange={e => setForm({ ...form, phone: e.target.value })}
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label"><Globe size={12} color={GOLD} /> Nationality</label>
+              <input
+                className="form-input"
+                type="text"
+                placeholder="e.g. Moroccan"
+                value={form.nationality}
+                onChange={e => setForm({ ...form, nationality: e.target.value })}
+              />
+            </div>
+
+            <div className="form-group full-width">
+              <label className="form-label"><FileText size={12} color={GOLD} /> Passport Number</label>
+              <input
+                className="form-input"
+                type="text"
+                placeholder="e.g. AB123456"
+                value={form.passport_number}
+                onChange={e => setForm({ ...form, passport_number: e.target.value })}
+              />
+            </div>
+
+            <div className="form-section-title">Change Password (Leave blank to keep current)</div>
+
+            <div className="form-group">
+              <label className="form-label"><Lock size={12} color={GOLD} /> New Password</label>
+              <input
+                className="form-input"
+                type="password"
+                placeholder="Min. 8 characters"
+                value={form.password}
+                onChange={e => setForm({ ...form, password: e.target.value })}
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label"><Lock size={12} color={GOLD} /> Confirm New Password</label>
+              <input
+                className="form-input"
+                type="password"
+                placeholder="Repeat password"
+                value={form.password_confirmation}
+                onChange={e => setForm({ ...form, password_confirmation: e.target.value })}
+              />
+            </div>
+
+            <button type="submit" className="submit-btn" disabled={loading}>
+              {loading ? "Saving changes..." : "Save My Settings"}
+            </button>
+          </form>
+        ) : (
+          <div className="my-reservations-section">
+            {resLoading ? (
+              <div style={{ textAlign: 'center', padding: '3rem 0', color: '#888' }}>
+                <p>Loading your reservations...</p>
+              </div>
+            ) : reservations.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '3rem 1rem', background: '#faf8f5', borderRadius: '8px', border: '1px solid #e5ddd2' }}>
+                <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.4rem', color: DARK, marginBottom: '12px' }}>No reservations found</p>
+                <p style={{ fontSize: '0.88rem', color: '#888', marginBottom: '20px' }}>You haven't booked a luxury experience at Alhambra Hotel yet.</p>
+                <Link to="/stay" style={{ display: 'inline-block', padding: '10px 24px', background: GOLD, color: 'white', textDecoration: 'none', borderRadius: '4px', fontSize: '0.78rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Discover Our Rooms</Link>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                {reservations.map(res => {
+                  const statusMeta = STATUS_META[res.status] || { label: res.status, color: "#6b7280", bg: "rgba(107,114,128,0.1)" };
+                  return (
+                    <div key={res.id} style={{ display: 'flex', background: 'white', border: '1px solid rgba(184,150,90,0.15)', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 2px 10px rgba(26,18,8,0.02)' }}>
+                      <div style={{ width: '160px', height: '140px', flexShrink: 0 }}>
+                        <img src={res.img} alt={res.roomName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      </div>
+                      <div style={{ flex: 1, padding: '1.2rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                          <div>
+                            <span style={{ fontSize: '0.65rem', color: GOLD, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>{res.id}</span>
+                            <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.3rem', fontWeight: 400, color: DARK, marginTop: '2px' }}>{res.roomName}</h3>
+                            <p style={{ fontSize: '0.75rem', color: '#aaa', marginTop: '2px' }}>Room #{res.room} · Floor {res.floor}</p>
+                          </div>
+                          <span style={{ background: statusMeta.bg, color: statusMeta.color, fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '3px 8px', borderRadius: '3px' }}>
+                            {statusMeta.label}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: '1px dashed #f0eae1', paddingTop: '10px', marginTop: '10px' }}>
+                          <div style={{ display: 'flex', gap: '1.5rem' }}>
+                            <div>
+                              <p style={{ fontSize: '0.58rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: GOLD }}>Check-in</p>
+                              <p style={{ fontSize: '0.8rem', fontWeight: 500, color: DARK }}>{res.checkin}</p>
+                            </div>
+                            <div>
+                              <p style={{ fontSize: '0.58rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: GOLD }}>Check-out</p>
+                              <p style={{ fontSize: '0.8rem', fontWeight: 500, color: DARK }}>{res.checkout}</p>
+                            </div>
+                            <div>
+                              <p style={{ fontSize: '0.58rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: GOLD }}>Nights</p>
+                              <p style={{ fontSize: '0.8rem', fontWeight: 500, color: DARK }}>{res.nights}</p>
+                            </div>
+                          </div>
+                          <div style={{ textAlign: 'right' }}>
+                            <p style={{ fontSize: '0.58rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#aaa' }}>Total stay</p>
+                            <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.15rem', fontWeight: 600, color: GOLD }}>MAD {res.total.toLocaleString()}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <Footer />

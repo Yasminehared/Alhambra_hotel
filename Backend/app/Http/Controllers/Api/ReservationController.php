@@ -8,7 +8,9 @@ use App\Models\Customer;
 use App\Services\ReservationService;
 use App\Services\RoomAvailabilityService;
 use App\Services\PricingService;
+use App\Enums\UserRole;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -123,7 +125,31 @@ class ReservationController extends Controller
 
     public function index()
     {
-        $reservations = Reservation::with(['rooms.roomType', 'customer'])->orderByDesc('created_at')->get();
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        $roleVal = $user->role ? $user->role->value : 'customer';
+
+        if ($roleVal !== 'admin' && $roleVal !== 'customer') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $query = Reservation::with(['rooms.roomType', 'customer']);
+
+        if ($roleVal === 'customer') {
+            $customer = Customer::where('user_id', $user->id)
+                ->orWhere('email', $user->email)
+                ->first();
+            if ($customer) {
+                $query->where('customer_id', $customer->id);
+            } else {
+                return response()->json([]);
+            }
+        }
+
+        $reservations = $query->orderByDesc('created_at')->get();
 
         $data = $reservations->map(function ($res) {
             $firstRoom = $res->rooms->first();
@@ -178,38 +204,21 @@ class ReservationController extends Controller
 
     public function checkIn(Reservation $reservation)
     {
-        try {
-            $this->reservationService->checkIn($reservation);
-            return response()->json([
-                'success' => true,
-                'message' => 'Checked in successfully.',
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 400);
-        }
+        return response()->json(['message' => 'Unauthorized operation. Only Confirm and Cancel are permitted.'], 403);
     }
 
     public function checkOut(Reservation $reservation)
     {
-        try {
-            $this->reservationService->checkOut($reservation);
-            return response()->json([
-                'success' => true,
-                'message' => 'Checked out successfully.',
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 400);
-        }
+        return response()->json(['message' => 'Unauthorized operation. Only Confirm and Cancel are permitted.'], 403);
     }
 
     public function cancel(Reservation $reservation)
     {
+        $user = Auth::user();
+        if (!$user || $user->role !== UserRole::ADMIN) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         try {
             $this->reservationService->cancel($reservation);
             return response()->json([
@@ -226,6 +235,11 @@ class ReservationController extends Controller
 
     public function confirm(Reservation $reservation)
     {
+        $user = Auth::user();
+        if (!$user || $user->role !== UserRole::ADMIN) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         try {
             $reservation->update([
                 'status' => \App\Enums\ReservationStatus::CONFIRMED,

@@ -35,10 +35,12 @@ export default function LoginPage() {
     setError("");
     try {
       const user = await login(form.email, form.password);
-      if (user.role === "housekeeping") {
-        navigate("/maintenance");
+      if (user.role === "admin") {
+        window.location.href = window.location.origin.includes("localhost") || window.location.origin.includes("127.0.0.1")
+          ? "http://127.0.0.1:8000/admin"
+          : "/admin";
       } else {
-        navigate("/dashboard");
+        navigate("/profile");
       }
     } catch (err) {
       setError(err.response?.data?.message || err.message || "Invalid credentials");
@@ -63,10 +65,12 @@ export default function LoginPage() {
         registerForm.password,
         registerForm.passwordConfirmation
       );
-      if (user.role === "housekeeping") {
-        navigate("/maintenance");
+      if (user.role === "admin") {
+        window.location.href = window.location.origin.includes("localhost") || window.location.origin.includes("127.0.0.1")
+          ? "http://127.0.0.1:8000/admin"
+          : "/admin";
       } else {
-        navigate("/dashboard");
+        navigate("/profile");
       }
     } catch (err) {
       setError(err.response?.data?.message || err.message || "Failed to register");

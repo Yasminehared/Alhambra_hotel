@@ -22,13 +22,12 @@ return Application::configure(basePath: dirname(__DIR__))
         // Session-based API authentication (Sanctum stateful)
         $middleware->statefulApi();
 
-        // Ensure blocked users lose access immediately
+        // Ensure blocked users lose access immediately on every API request
         $middleware->appendToGroup('api', \App\Http\Middleware\EnsureUserNotBlocked::class);
 
         // Append Security Headers to ALL responses
-$middleware->api(append: [
-    \App\Http\Middleware\EnsureUserNotBlocked::class,
-]);    })
+        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
+    })
     ->withExceptions(function (Exceptions $exceptions): void {
 
         // ─── 404 Not Found ────────────────────────────────────────────────

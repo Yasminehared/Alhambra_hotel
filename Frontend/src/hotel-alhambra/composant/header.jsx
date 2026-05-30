@@ -190,6 +190,9 @@ export default function Header() {
           <li>
             <Link to="/restaurants">Restaurants</Link>
           </li>
+          <li>
+            <Link to="/hotel-service/spa">Spa</Link>
+          </li>
         </ul>
 
         <div
@@ -251,6 +254,9 @@ export default function Header() {
         {/* <Link to="/stay" onClick={() => setMenuOpen(false)}>Stay</Link> */}
         <Link to="/restaurants" onClick={() => setMenuOpen(false)}>
           Restaurants
+        </Link>
+        <Link to="/hotel-service/spa" onClick={() => setMenuOpen(false)}>
+          Spa
         </Link>
         <Link to="/about-us" onClick={() => setMenuOpen(false)}>
           About us

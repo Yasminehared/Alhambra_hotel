@@ -110,7 +110,7 @@ class MaintenanceService
     {
         return $room->maintenanceTickets()
             ->where('blocks_room', true)
-            ->whereIn('status', [MaintenanceStatus::PENDING->value, MaintenanceStatus::IN_PROGRESS->value])
+            ->whereIn('status', [MaintenanceStatus::PENDING, MaintenanceStatus::IN_PROGRESS])
             ->get();
     }
 }

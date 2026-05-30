@@ -9,7 +9,7 @@ const DARK = "#1a1208";
 const CREAM = "#fdf6ec";
 
 export default function ContactPage() {
-  const [form, setForm] = useState({ name: "", email: "", phone: "", subject: "", message: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", subject: "Reservation", message: "" });
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [mounted, setMounted] = useState(false);

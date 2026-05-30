@@ -191,7 +191,7 @@ export default function Rooms() {
               >
                 <div className="room-card">
                   <h2 className="room-name">{room.name}</h2>
-                  <p className="room-desc">{room.description}</p>
+                  <p className="room-desc" dangerouslySetInnerHTML={{ __html: room.description }} />
                   <Link to={`/room/${room.slug}`} className="room-link">
                     READ MORE →
                   </Link>

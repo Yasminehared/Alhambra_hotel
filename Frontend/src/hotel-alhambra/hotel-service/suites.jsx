@@ -443,7 +443,7 @@ export default function Suites() {
                   <span className="suite-number">0{i + 1}</span>
                   <p className="suite-size">{suite.size_sqm} m²</p>
                   <h2 className="suite-name">{suite.name}</h2>
-                  <p className="suite-desc">{suite.description}</p>
+                  <p className="suite-desc" dangerouslySetInnerHTML={{ __html: suite.description }} />
                   <div className="suite-features">
                     {(suite.amenities || []).map((f) => (
                       <span key={f.id || f.name} className="suite-feature">{f.name}</span>

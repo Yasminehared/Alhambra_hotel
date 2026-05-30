@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
+use App\Enums\UserRole;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -44,12 +45,7 @@ class UserResource extends Resource
                                 ->label('Password')
                                 ->helperText('Leave blank to keep existing password when editing.'),
                             Forms\Components\Select::make('role')
-                                ->options([
-                                    'admin' => 'Administrator',
-                                    'receptionist' => 'Receptionist',
-                                    'housekeeping' => 'Housekeeping Staff',
-                                    'customer' => 'Customer / Guest',
-                                ])
+                                ->options(UserRole::options())
                                 ->native(false)
                                 ->required()
                                 ->label('Application Role'),
@@ -80,20 +76,6 @@ class UserResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('role')
                     ->badge()
-                    ->color(fn ($state): string => match ($state?->value ?? $state) {
-                        'admin' => 'danger',
-                        'receptionist' => 'success',
-                        'housekeeping' => 'warning',
-                        'customer' => 'info',
-                        default => 'gray',
-                    })
-                    ->formatStateUsing(fn ($state): string => match ($state?->value ?? $state) {
-                        'admin' => 'Admin',
-                        'receptionist' => 'Receptionist',
-                        'housekeeping' => 'Housekeeping',
-                        'customer' => 'Customer',
-                        default => ucfirst($state?->value ?? $state),
-                    })
                     ->sortable()
                     ->alignCenter(),
                 Tables\Columns\TextColumn::make('roles.name')
@@ -108,12 +90,7 @@ class UserResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 Tables\Filters\SelectFilter::make('role')
-                    ->options([
-                        'admin' => 'Admin',
-                        'receptionist' => 'Receptionist',
-                        'housekeeping' => 'Housekeeping',
-                        'customer' => 'Customer',
-                    ]),
+                    ->options(UserRole::options()),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

@@ -6,13 +6,20 @@ use App\Http\Controllers\Controller;
 use App\Models\MaintenanceTicket;
 use App\Models\Room;
 use App\Enums\MaintenanceStatus;
+use App\Enums\UserRole;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class MaintenanceController extends Controller
 {
     public function index()
     {
+        $user = Auth::user();
+        if (!$user || $user->role !== UserRole::ADMIN) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $tickets = MaintenanceTicket::with('room.roomType')->orderByDesc('created_at')->get();
 
         $data = $tickets->map(function ($t) {
@@ -69,6 +76,11 @@ class MaintenanceController extends Controller
 
     public function store(Request $request)
     {
+        $user = Auth::user();
+        if (!$user || $user->role !== UserRole::ADMIN) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $validated = $request->validate([
             'room'        => 'required|integer', // room_number
             'title'       => 'required|string|max:255',
@@ -110,6 +122,11 @@ class MaintenanceController extends Controller
 
     public function update(Request $request, MaintenanceTicket $ticket)
     {
+        $user = Auth::user();
+        if (!$user || $user->role !== UserRole::ADMIN) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $validated = $request->validate([
             'status'           => ['required', 'string', Rule::in(['pending', 'in-progress', 'completed'])],
             'assigned_to'      => 'nullable|string|max:255',
