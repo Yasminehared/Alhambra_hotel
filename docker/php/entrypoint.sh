@@ -36,8 +36,10 @@ if [ "${ALHAMBRA_SEED:-true}" = "true" ]; then
   php artisan db:seed --force --no-interaction 2>/dev/null || true
 fi
 
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+php artisan view:clear --no-interaction 2>/dev/null || true
+php artisan config:cache --no-interaction
+php artisan route:cache --no-interaction
+# Skip view:cache — leftover blades or admin views change often; on-demand compile is fine
+php artisan event:cache --no-interaction 2>/dev/null || true
 
 exec "$@"
