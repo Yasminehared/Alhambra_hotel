@@ -13,11 +13,9 @@ import Chambres from "./hotel-alhambra/admin/chambre";
 import Suites from "./hotel-alhambra/hotel-service/suites";
 import Villas from "./hotel-alhambra/hotel-service/villas";
 import Home from "./hotel-alhambra/home";
-import AIHelper from "./hotel-alhambra/composant/AIHelper";
+import { AIHelper, DoorIntro, LuxuryCursor } from "./hotel-alhambra/composant/index.js";
 import Stay from "./hotel-alhambra/hotel-service/stay";
 import SpaPage from "./hotel-alhambra/hotel-service/spa";
-import DoorIntro from "./hotel-alhambra/composant/DoorIntro";
-import LuxuryCursor from "./hotel-alhambra/composant/LuxuryCursor";
 
 // Admin console imports
 import DashboardConsole from "./hotel-alhambra/admin/dashboard";

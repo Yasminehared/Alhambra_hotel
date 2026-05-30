@@ -1,7 +1,7 @@
 import Header from "./composant/header";
 import Footer from "./composant/footer";
 import BookingBar from "./composant/BookingBar";
-import ScrollReveal from "./composant/ScrollReveal";
+import { ScrollReveal } from "./composant/index.js";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 

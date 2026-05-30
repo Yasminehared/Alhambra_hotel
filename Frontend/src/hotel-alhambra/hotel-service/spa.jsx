@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Header from "../composant/header";
 import Footer from "../composant/footer";
-import ScrollReveal from "../composant/ScrollReveal";
+import { ScrollReveal } from "../composant/index.js";
 import "./rooms.css";
 
 const TREATMENTS = [
