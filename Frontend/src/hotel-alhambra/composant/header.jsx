@@ -1,9 +1,16 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { User } from "lucide-react";
+import { User, Languages } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { t, i18n } = useTranslation();
+
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+    document.body.dir = lng === 'ar' ? 'rtl' : 'ltr';
+  };
 
   return (
     <>
@@ -34,6 +41,7 @@ export default function Header() {
           list-style: none;
           margin: 0;
           padding: 0;
+          align-items: center;
         }
 
         .nav-links a {
@@ -85,15 +93,20 @@ export default function Header() {
           list-style: none;
         }
 
-        .dropdown-menu a {
+        .dropdown-menu a, .dropdown-menu button {
           display: block;
           padding: 0.6rem 1rem;
           font-size: 0.75rem;
           color: #1a1208;
           text-decoration: none;
+          background: none;
+          border: none;
+          width: 100%;
+          text-align: left;
+          cursor: pointer;
         }
 
-        .dropdown-menu a:hover {
+        .dropdown-menu a:hover, .dropdown-menu button:hover {
           background: #f3eadc;
         }
 
@@ -125,6 +138,22 @@ export default function Header() {
 
         /* MOBILE MENU */
         
+
+        .mobile-menu {
+          position: fixed;
+          top: 64px;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(26, 18, 8, 0.97);
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+          padding: 2rem;
+          transform: translateX(100%);
+          transition: transform 0.3s ease;
+          z-index: 1050;
+        }
 
         .mobile-menu.open {
           transform: translateX(0);
@@ -164,22 +193,25 @@ export default function Header() {
       <nav className="navbar">
         <ul className="nav-links left">
           <li className="dropdown">
-            <Link to="/stay">Stay ▾</Link>
+            <Link to="/stay">{t('stay')} ▾</Link>
             <ul className="dropdown-menu">
               <li>
-                <Link to="/hotel-service/rooms">Rooms</Link>
+                <Link to="/hotel-service/rooms">{t('rooms')}</Link>
               </li>
               <li>
-                <Link to="/hotel-service/suites">Suites</Link>
+                <Link to="/hotel-service/suites">{t('suites')}</Link>
               </li>
               <li>
-                <Link to="/hotel-service/villas">Villas</Link>
+                <Link to="/hotel-service/villas">{t('villas')}</Link>
               </li>
             </ul>
           </li>
 
           <li>
-            <Link to="/restaurants">Restaurants</Link>
+            <Link to="/spa">{t('spa_nav')}</Link>
+          </li>
+          <li>
+            <Link to="/restaurants">{t('restaurants_nav')}</Link>
           </li>
         </ul>
 
@@ -187,23 +219,32 @@ export default function Header() {
           className="nav-logo"
           style={{ textDecoration: "none", color: "white" }}
         >
-          <Link to="../">✦ Alhambra ✦</Link>
+          <Link to="/">✦ Alhambra ✦</Link>
         </div>
 
         <ul className="nav-links right">
-          <li>
-            <Link to="../about-us">About us</Link>
+          <li className="dropdown">
+            <button style={{ background: 'none', border: 'none', color: 'white', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}>
+              <Languages size={18} />
+              <span style={{ fontSize: '0.8rem' }}>{i18n.language.toUpperCase()}</span>
+            </button>
+            <ul className="dropdown-menu">
+              <li><button onClick={() => changeLanguage('en')}>English</button></li>
+              <li><button onClick={() => changeLanguage('fr')}>Français</button></li>
+              <li><button onClick={() => changeLanguage('ar')}>العربية</button></li>
+            </ul>
           </li>
           <li>
-            <Link to="../contact-us">Contact us</Link>
+            <Link to="/about-us">{t('about')}</Link>
           </li>
-          <ul className="nav-links right" style={{ gap: "1rem" }}>
-            <li>
-              <Link to="/log-in">
-                <User size={18} />
-              </Link>
-            </li>
-          </ul>
+          <li>
+            <Link to="/contact-us">{t('contact')}</Link>
+          </li>
+          <li>
+            <Link to="/log-in">
+              <User size={18} />
+            </Link>
+          </li>
         </ul>
 
         {/* BUTTON */}
@@ -215,32 +256,39 @@ export default function Header() {
       {/* MOBILE MENU */}
       <div className={`mobile-menu ${menuOpen ? "open" : ""}`}>
         <li className="dropdown-mobile">
-          <Link to="/stay">Stay ▾</Link>
+          <Link to="/stay">{t('stay')} ▾</Link>
           <ul className="dropdown-menu-mobile">
             <li>
-              <Link to="/hotel-service/rooms">Rooms</Link>
+              <Link to="/hotel-service/rooms" onClick={() => setMenuOpen(false)}>{t('rooms')}</Link>
             </li>
             <li>
-              <Link to="/hotel-service/suites">Suites</Link>
+              <Link to="/hotel-service/suites" onClick={() => setMenuOpen(false)}>{t('suites')}</Link>
             </li>
             <li>
-              <Link to="/hotel-service/villas">Villas</Link>
+              <Link to="/hotel-service/villas" onClick={() => setMenuOpen(false)}>{t('villas')}</Link>
             </li>
           </ul>
         </li>
-        {/* <Link to="/stay" onClick={() => setMenuOpen(false)}>Stay</Link> */}
+        <Link to="/spa" onClick={() => setMenuOpen(false)}>
+          {t('spa_nav')}
+        </Link>
         <Link to="/restaurants" onClick={() => setMenuOpen(false)}>
-          Restaurants
+          {t('restaurants_nav')}
         </Link>
         <Link to="/about-us" onClick={() => setMenuOpen(false)}>
-          About us
+          {t('about')}
         </Link>
         <Link to="/contact-us" onClick={() => setMenuOpen(false)}>
-          Contact us
+          {t('contact')}
         </Link>
         <Link to="/log-in" onClick={() => setMenuOpen(false)}>
-          Log in
+          {t('login')}
         </Link>
+        <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
+          <button onClick={() => changeLanguage('en')} style={{ background: 'none', border: 'none', color: 'white' }}>EN</button>
+          <button onClick={() => changeLanguage('fr')} style={{ background: 'none', border: 'none', color: 'white' }}>FR</button>
+          <button onClick={() => changeLanguage('ar')} style={{ background: 'none', border: 'none', color: 'white' }}>AR</button>
+        </div>
       </div>
     </>
   );

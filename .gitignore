@@ -1,0 +1,32 @@
+# Dependencies
+Frontend/node_modules/
+Backend/vendor/
+Backend/node_modules/
+
+# Build / cache
+Frontend/build/
+Backend/public/build/
+Backend/public/hot/
+Backend/bootstrap/cache/*.php
+!Backend/bootstrap/cache/.gitignore
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+Backend/.env
+Backend/.env.*
+!Backend/.env.example
+
+# Logs & OS
+*.log
+.DS_Store
+Thumbs.db
+
+# IDE (keep Cursor rules)
+.idea/
+.vscode/
+Backend/.phpunit.cache/
+
+# Laravel storage (keep structure via nested .gitignore)
+Backend/storage/*.key

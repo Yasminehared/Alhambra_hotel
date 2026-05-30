@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
-import AboutUs from "../about-us";
+import { useTranslation } from "react-i18next";
 
 const GOLD = "#b8965a";
 const CREAM = "#f5f0e8";
 const DARK = "#1a1208";
 
 export default function Footer() {
+  const { t } = useTranslation();
   return (
     <>
       <style>{`
@@ -122,10 +123,10 @@ export default function Footer() {
 
         {/* NAV LINKS (static) */}
         <nav className="footer-nav">
-          <Link to="../about-us">Notre Histoire</Link>
-          <Link to="../about-us">About Us</Link>
-          <Link to="../contact-us">Contact Us</Link>
-          <Link to="../terms">Conditions Générales</Link>
+          <Link to="/about-us">{t('about')}</Link>
+          <Link to="/stay">{t('stay')}</Link>
+          <Link to="/restaurants">RESTAURANTS</Link>
+          <Link to="/contact-us">{t('contact')}</Link>
         </nav>
 
         {/* CONTENT */}
@@ -150,9 +151,9 @@ export default function Footer() {
           <div className="footer-col">
             <h4>Suivez-Nous</h4>
             <div style={{ display: "flex", gap: "1rem" }}>
-              <a href="#">Facebook</a>
-              <a href="#">Instagram</a>
-              <a href="#">LinkedIn</a>
+              <a href="https://facebook.com" target="_blank" rel="noreferrer">Facebook</a>
+              <a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a>
+              <a href="https://linkedin.com" target="_blank" rel="noreferrer">LinkedIn</a>
             </div>
           </div>
 

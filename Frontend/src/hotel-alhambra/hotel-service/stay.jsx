@@ -1,135 +1,79 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Footer from "../composant/footer";
 import Header from "../composant/header";
 
-const CATEGORIES = [
-  {
-    key: "rooms",
-    label: "Rooms",
-    tagline: "Refined Comfort",
-    heroImage: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1400&q=80",
-    intro:
-      "Each room at Alhambra is a carefully composed sanctuary — where contemporary elegance meets the warmth of Moroccan craftsmanship. From Superior to Deluxe Premier, every space is designed to make you feel both at home and far from the ordinary.",
-    from: "From €180 / night",
-    items: [
-      {
-        name: "Superior Room",
-        size: "35 m²",
-        desc: "Sober, elegant and contemporary oriental setting. Refinement, comfort and premium service.",
-        image: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80",
-        features: ["King or Twin Bed", "City View", "En-Suite Bathroom", "Free Wi-Fi"],
-        link: "/rooms",
-      },
-      {
-        name: "Superior Room",
-        size: "35 m²",
-        desc: "Sober, elegant and contemporary oriental setting. Refinement, comfort and premium service.",
-        image: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80",
-        features: ["King or Twin Bed", "City View", "En-Suite Bathroom", "Free Wi-Fi"],
-        link: "/rooms",
-      },
-      {
-        name: "Deluxe Room",
-        size: "55 m²",
-        desc: "55 square meters of elegance, luxury and intimacy with breathtaking interior design.",
-        image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80",
-        features: ["King Bed", "Garden View", "Soaking Tub", "Pillow Menu"],
-        link: "/rooms",
-      },
-      {
-        name: "Deluxe Premier Room",
-        size: "65 m²",
-        desc: "Subtle oriental refinement with pool and garden views, designed for exceptional comfort and prestige.",
-        image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80",
-        features: ["King Bed", "Pool View", "Private Terrace", "Butler on Call"],
-        link: "/rooms",
-      },
-    ],
-  },
-  {
-    key: "suites",
-    label: "Suites",
-    tagline: "Elevated Living",
-    heroImage: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=1400&q=80",
-    intro:
-      "The Alhambra Suites are singular worlds — intimate sanctuaries shaped by centuries of Moroccan artistry, enveloped in the finest materials and attended by discreet, personalised service. Each suite is an art of living beyond the ordinary.",
-    from: "From €420 / night",
-    items: [
-      {
-        name: "Junior Suite",
-        size: "75 m²",
-        desc: "Harmonious blend of Moroccan craftsmanship and contemporary luxury with a separate living area.",
-        image: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=800&q=80",
-        features: ["King Bed", "Living Area", "Garden View", "Rainfall Shower"],
-        link: "/suites",
-      },
-      {
-        name: "Senior Suite",
-        size: "110 m²",
-        desc: "Authentic zellige tilework, a private terrace, and a deep soaking bath carved in white marble.",
-        image: "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&q=80",
-        features: ["King Bed", "Private Terrace", "Marble Bath", "Butler Service"],
-        link: "/suites",
-      },
-      {
-        name: "Royal Suite",
-        size: "185 m²",
-        desc: "Cedar-wood ceilings, a private hammam, dedicated butler, and sweeping views of the medina.",
-        image: "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=800&q=80",
-        features: ["Master Bedroom", "Private Hammam", "Double Living Room", "Panoramic View"],
-        link: "/suites",
-      },
-      {
-        name: "Presidential Suite",
-        size: "280 m²",
-        desc: "An entire floor with two bedrooms, private dining, a rooftop plunge pool, and bespoke Moroccan art.",
-        image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80",
-        features: ["Two Bedrooms", "Rooftop Plunge Pool", "Private Dining", "Exclusive Art"],
-        link: "/suites",
-      },
-    ],
-  },
-  {
-    key: "villas",
-    label: "Villas",
-    tagline: "Private Kingdoms",
-    heroImage: "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=1400&q=80",
-    intro:
-      "The Alhambra Villas are not merely accommodations — they are private kingdoms. Each villa is a self-contained world, staffed and curated to your desires, where the boundaries between hotel luxury and the intimacy of home dissolve entirely.",
-    from: "From €1,200 / night",
-    items: [
-      {
-        name: "Garden Villa",
-        size: "220 m²",
-        desc: "Nestled within a private walled garden of jasmine and orange blossom with a secluded heated pool.",
-        image: "https://images.unsplash.com/photo-1613977257363-707ba9348227?w=800&q=80",
-        features: ["Private Heated Pool", "Walled Garden", "2 Bedrooms", "Butler Service"],
-        link: "/villas",
-      },
-      {
-        name: "Riad Villa",
-        size: "340 m²",
-        desc: "An entire traditional riad with a mosaic courtyard, private hammam, and rooftop terrace.",
-        image: "https://images.unsplash.com/photo-1602343168117-bb8ffe3e2e9f?w=800&q=80",
-        features: ["Mosaic Courtyard", "Private Hammam", "3 Bedrooms", "Full Staff"],
-        link: "/villas",
-      },
-      {
-        name: "Palais Villa",
-        size: "580 m²",
-        desc: "A complete private palace — five bedrooms, two pools, a cinema room, and a private chef.",
-        image: "https://images.unsplash.com/photo-1580977276076-ae4b8c219b8e?w=800&q=80",
-        features: ["2 Private Pools", "5 Bedrooms", "Private Chef", "Cinema Room"],
-        link: "/villas",
-      },
-    ],
-  },
-];
-
 export default function Stay() {
+  const { t } = useTranslation();
   const [active, setActive] = useState("rooms");
   const navigate = useNavigate();
+
+  const CATEGORIES = [
+    {
+      key: "rooms",
+      label: t('rooms'),
+      tagline: t('stay_eyebrow'),
+      heroImage: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1400&q=80",
+      intro: t('rooms_intro'),
+      from: t('stay_from', { price: "€180" }),
+      items: [
+        {
+          name: t('superior_room'),
+          size: "35 m²",
+          desc: "Sober, elegant and contemporary oriental setting.",
+          image: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80",
+          features: ["King or Twin Bed", "City View", "En-Suite Bathroom"],
+          link: "/rooms",
+        },
+        {
+          name: t('deluxe_room'),
+          size: "55 m²",
+          desc: "55 square meters of elegance, luxury and intimacy.",
+          image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80",
+          features: ["King Bed", "Garden View", "Soaking Tub"],
+          link: "/rooms",
+        },
+      ],
+    },
+    {
+      key: "suites",
+      label: t('suites'),
+      tagline: t('stay_eyebrow'),
+      heroImage: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=1400&q=80",
+      intro: t('suites_intro'),
+      from: t('stay_from', { price: "€420" }),
+      items: [
+        {
+          name: t('junior_suite'),
+          size: "75 m²",
+          desc: "Harmonious blend of Moroccan craftsmanship and contemporary luxury.",
+          image: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=800&q=80",
+          features: ["King Bed", "Living Area", "Garden View"],
+          link: "/suites",
+        },
+      ],
+    },
+    {
+      key: "villas",
+      label: t('villas'),
+      tagline: t('stay_eyebrow'),
+      heroImage: "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=1400&q=80",
+      intro: t('villas_intro'),
+      from: t('stay_from', { price: "€1,200" }),
+      items: [
+        {
+          name: t('garden_villa'),
+          size: "220 m²",
+          desc: "Nestled within a private walled garden with a secluded pool.",
+          image: "https://images.unsplash.com/photo-1613977257363-707ba9348227?w=800&q=80",
+          features: ["Private Heated Pool", "Walled Garden", "2 Bedrooms"],
+          link: "/villas",
+        },
+      ],
+    },
+  ];
+
   const current = CATEGORIES.find((c) => c.key === active);
 
   return (
@@ -564,11 +508,11 @@ export default function Stay() {
           />
           <div className="stay-hero-overlay" />
           <div className="stay-hero-center">
-            <p className="stay-eyebrow">Alhambra · Tanger</p>
+            <p className="stay-eyebrow">{t('stay_eyebrow')}</p>
             <h1 className="stay-hero-title">
-              Your <em>Stay</em>
+              {t('stay_hero_title')} <em>{t('stay_hero_title_em')}</em>
             </h1>
-            <p className="stay-hero-sub">Rooms · Suites · Villas</p>
+            <p className="stay-hero-sub">{t('stay_hero_sub')}</p>
           </div>
         </section>
 

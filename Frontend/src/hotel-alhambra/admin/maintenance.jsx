@@ -4,14 +4,7 @@ import axios from "axios";
 
 const IMG = "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&q=70";
 
-const rooms = [
-  { num: "106", name: "Simple Standard", status: "Hors service", detail: "Remplacement climatisation" },
-  { num: "107", name: "Simple Standard", status: "Hors service", detail: "Remplacement climatisation" },
-  { num: "108", name: "Simple Standard", status: "Hors service", detail: "Remplacement climatisation" },
-  { num: "109", name: "Simple Standard", status: "Hors service", detail: "Remplacement climatisation" },
-  { num: "110", name: "Simple Standard", status: "Hors service", detail: "Remplacement climatisation" },
-  { num: "111", name: "Simple Standard", status: "Hors service", detail: "Remplacement climatisation" },
-];
+const rooms = [];
 
 const navItems = [
   {

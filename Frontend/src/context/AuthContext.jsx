@@ -28,8 +28,10 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     // 1. Initialize CSRF protection cookie (standard handshake)
     try {
-      await axios.get("/api/me").catch(() => {});
-    } catch (e) {}
+      await axios.get("/api/csrf-cookie");
+    } catch (e) {
+      console.error("CSRF handshake failed", e);
+    }
 
     // 2. Perform Login
     const res = await axios.post("/api/login", { email, password });

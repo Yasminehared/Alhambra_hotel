@@ -156,6 +156,7 @@ class ReservationController extends Controller
                 'guests'      => (int)($res->adults + $res->children),
                 'status'      => $frontendStatus,
                 'payment'     => $res->payment_status ? $res->payment_status->value : 'unpaid',
+                'amount_paid' => (float)$res->amount_paid,
                 'source'      => $frontendSource,
                 'price'       => $firstRoom ? (float)$firstRoom->roomType->base_price : 0.0,
                 'total'       => (float)$res->total_price,

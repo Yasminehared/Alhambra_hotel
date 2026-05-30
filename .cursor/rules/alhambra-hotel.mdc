@@ -1,0 +1,44 @@
+---
+description: Alhambra Hotel full-stack conventions (React + Laravel)
+globs:
+  - Frontend/src/**/*
+  - Backend/app/**/*
+  - Backend/routes/**/*
+alwaysApply: false
+---
+
+# Alhambra Hotel Project
+
+## Stack
+- **Frontend**: React 19 (CRA), react-router-dom v7, i18next, axios, lucide-react
+- **Backend**: Laravel API on port **8001**, session auth with CSRF (`/api/csrf-cookie`)
+- **Proxy**: `Frontend/package.json` → `"proxy": "http://localhost:8001"`
+
+## Structure
+- Public site: `Frontend/src/hotel-alhambra/` (pages, `composant/`)
+- Admin console: routes under `/dashboard`, `/admin/*` with `AdminLayout` + `Sidebar`
+- Entry animation: `composant/DoorIntro.jsx` (once per browser session)
+- API helpers: `Frontend/src/api.js`
+
+## Conventions
+- Use `Link` from react-router-dom with lowercase `to` (never `To`)
+- Absolute paths for routes: `/hotel-service/rooms`, `/spa`, `/restaurants`
+- Translations: `public/locales/{en,fr,ar}/translation.json` — add keys to all three
+- Styling: luxury palette — gold `#b8975a`, cream `#f8f6f2`, dark `#1a1208`
+- Fonts: Cormorant Garamond (headings), Jost (body) — see `index.css`
+
+## Running locally
+```bash
+# Terminal 1 — Backend
+cd Backend && php artisan serve --port=8001
+
+# Terminal 2 — Frontend
+cd Frontend && npm start
+```
+
+Set `FRONTEND_URL=http://localhost:3000` in Backend `.env` for CORS.
+
+## Do not
+- Add catch-all routes like `/:roomId` at root (breaks `/spa`, etc.)
+- Commit `.env` or secrets
+- Remove `withCredentials` from axios — required for Laravel sessions

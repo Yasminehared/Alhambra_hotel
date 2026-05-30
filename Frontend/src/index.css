@@ -1,13 +1,190 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap");
+
+:root {
+  --alhambra-gold: #b8975a;
+  --alhambra-gold-light: #d4b37a;
+  --alhambra-cream: #f8f6f2;
+  --alhambra-dark: #1a1208;
+  --alhambra-muted: #6b5c48;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: "Jost", -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--alhambra-cream);
+  color: var(--alhambra-dark);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+body.alhambra-luxury-cursor {
+  cursor: none;
+}
+
+.alhambra-cursor-dot,
+.alhambra-cursor-ring {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.2s ease, height 0.2s ease, opacity 0.2s ease;
+}
+
+.alhambra-cursor-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--alhambra-gold);
+}
+
+.alhambra-cursor-ring {
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(184, 151, 90, 0.5);
+}
+
+.alhambra-cursor-ring.is-hover {
+  width: 52px;
+  height: 52px;
+  border-color: var(--alhambra-gold);
+}
+
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+
+.scroll-reveal--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+a.hero__btn,
+.home a[href] {
+  text-decoration: none;
+}
+
+.home .hero__content a {
+  margin-top: 2.5rem;
+  border: 1px solid #ffffff;
+  background: transparent;
+  color: #ffffff;
+  padding: 1rem 2.5rem;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  font-size: 0.75rem;
+  display: inline-block;
+  transition: background-color 0.5s, color 0.5s;
+}
+
+.home .hero__content a:hover {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.home .about__btn-link,
+.home .spa__btn-link,
+.home .restaurant__btn-link,
+.home .about a.about__btn-link {
+  display: inline-block;
+  margin-top: 1.5rem;
+  background-color: var(--alhambra-gold);
+  color: #ffffff;
+  border: none;
+  padding: 1rem 2.5rem;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  font-size: 0.75rem;
+  text-decoration: none;
+  transition: background-color 0.5s;
+}
+
+.home .about a.about__btn-link:hover,
+.home .spa__btn-link:hover,
+.home .restaurant__btn-link:hover {
+  background-color: #94733e;
+}
+
+.amenities {
+  padding: 6rem 1.5rem;
+  background: linear-gradient(180deg, #f8f6f2 0%, #ebe4d8 100%);
+}
+
+@media (min-width: 768px) {
+  .amenities {
+    padding: 6rem 5rem;
+  }
+}
+
+.amenities__title {
+  text-align: center;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 300;
+  margin: 0 0 3rem;
+  letter-spacing: 0.05em;
+}
+
+.amenities__grid {
+  display: grid;
+  gap: 1.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+@media (min-width: 640px) {
+  .amenities__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 900px) {
+  .amenities__grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.amenities__card {
+  background: #fff;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  border: 1px solid rgba(184, 151, 90, 0.15);
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.amenities__card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(26, 18, 8, 0.08);
+}
+
+.amenities__icon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.amenities__card h3 {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-weight: 400;
+  font-size: 1.25rem;
+  margin: 0 0 0.5rem;
+}
+
+.amenities__card p {
+  font-size: 0.85rem;
+  color: var(--alhambra-muted);
+  line-height: 1.7;
+  margin: 0;
+}
+
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }

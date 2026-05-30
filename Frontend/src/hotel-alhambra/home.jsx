@@ -1,10 +1,20 @@
 import Header from "./composant/header";
 import Footer from "./composant/footer";
 import BookingBar from "./composant/BookingBar";
+import ScrollReveal from "./composant/ScrollReveal";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+
+const AMENITIES = [
+  { icon: "🛎️", key: "amenity_concierge" },
+  { icon: "🏊", key: "amenity_pool" },
+  { icon: "✈️", key: "amenity_transfer" },
+  { icon: "🍾", key: "amenity_butler" },
+];
 
 
 function Home() {
+  const { t } = useTranslation();
   return (
     <>
     <style>{`/* ===== GLOBAL ===== */
@@ -484,31 +494,49 @@ Link {
         <div className="hero__content">
  
           <p className="hero__tagline">
-            Luxury Redefined
+            {t('hero_tagline')}
           </p>
  
           <h1 className="hero__title">
-            Experience Timeless
+            {t('hero_title_line1')}
             <br />
-            Moroccan Elegance
+            {t('hero_title_line2')}
           </h1>
  
-          <Link to="/stay">Explore Hotel</Link>
+          <Link to="/stay" className="hero__btn">{t('explore_hotel')}</Link>
            
         </div>
  
         <BookingBar />
       </section>
  
+      {/* AMENITIES */}
+      <section className="amenities">
+        <ScrollReveal>
+          <h2 className="amenities__title">{t("amenities_title")}</h2>
+        </ScrollReveal>
+        <div className="amenities__grid">
+          {AMENITIES.map((item, i) => (
+            <ScrollReveal key={item.key} delay={i * 100}>
+              <div className="amenities__card">
+                <div className="amenities__icon">{item.icon}</div>
+                <h3>{t(`${item.key}_title`)}</h3>
+                <p>{t(`${item.key}_desc`)}</p>
+              </div>
+            </ScrollReveal>
+          ))}
+        </div>
+      </section>
+
       {/* ABOUT */}
       <section className="about">
  
         <div className="about__header">
           <div className="about__divider" />
           <h2 className="about__title">
-            A Palace With
+            {t('about_title_line1')}
             <br />
-            Singular Atmosphere
+            {t('about_title_line2')}
           </h2>
         </div>
  
@@ -524,28 +552,25 @@ Link {
           </div>
  
           <div>
-            <p className="about__label">Welcome To Alhambra</p>
+            <p className="about__label">{t('about_label')}</p>
  
             <h3 className="about__subtitle">
-              Luxury Hospitality
+              {t('about_subtitle_line1')}
               <br />
-              In The Heart
+              {t('about_subtitle_line2')}
               <br />
-              Of Tangier
+              {t('about_subtitle_line3')}
             </h3>
  
             <p className="about__text">
-              At the foot of the Atlas Mountains stands a
-              palace of unique charm and refined elegance.
+              {t('about_text_1')}
             </p>
  
             <p className="about__text">
-              Combining Arab-Moorish architecture with
-              contemporary luxury, Alhambra offers an
-              unforgettable experience.
+              {t('about_text_2')}
             </p>
  
-            <Link to="/about-us">Explore Hotel</Link>
+            <Link to="/about-us" className="about__btn-link">{t('discover_more')}</Link>
 
           </div>
         </div>
@@ -555,21 +580,20 @@ Link {
       <section className="accommodation">
  
         <div className="accommodation__info">
-          <p className="accommodation__label">Our Collection</p>
+          <p className="accommodation__label">{t('accommodation_label')}</p>
  
           <h2 className="accommodation__title">
-            Accommodations
+            {t('accommodation_title')}
           </h2>
  
           <nav className="accommodation__nav">
-            <Link to="/hotel-service/rooms">Rooms</Link>
-            <Link to="hotel-service/suites">Suites</Link>
-            <Link to="hotel-service/villas">Villas</Link>
+            <Link to="/hotel-service/rooms">{t('rooms')}</Link>
+            <Link to="/hotel-service/suites">{t('suites')}</Link>
+            <Link to="/hotel-service/villas">{t('villas')}</Link>
           </nav>
  
           <p className="accommodation__text">
-            Elegant accommodations meticulously appointed
-            with refined comfort and luxury amenities.
+            {t('accommodation_text')}
           </p>
         </div>
  
@@ -581,8 +605,8 @@ Link {
           />
           <div className="accommodation__img-overlay" />
           <div className="accommodation__caption">
-            <h3>Luxury Rooms</h3>
-            <Link to="hotel-service/rooms">Discover →</Link>
+            <h3>{t('luxury_rooms')}</h3>
+            <Link to="/hotel-service/rooms">{t('discover')} →</Link>
           </div>
         </div>
       </section>
@@ -601,21 +625,20 @@ Link {
           </div>
  
           <div>
-            <p className="spa__label">Wellness & Serenity</p>
+            <p className="spa__label">{t('spa_label')}</p>
  
             <h2 className="spa__title">
-              Signature Spa
+              {t('spa_title_line1')}
               <br />
-              Experience
+              {t('spa_title_line2')}
             </h2>
  
             <p className="spa__text">
-              Discover a sanctuary dedicated to relaxation,
-              rejuvenation and holistic wellbeing.
+              {t('spa_text')}
             </p>
  
-            <Link To="spa">
-              Discover Spa
+            <Link to="/spa" className="spa__btn-link">
+              {t('discover_spa')}
             </Link>
  
             <div className="spa__img-grid">
@@ -646,21 +669,20 @@ Link {
         <div className="restaurant__grid">
  
           <div>
-            <p className="restaurant__label">Fine Dining</p>
+            <p className="restaurant__label">{t('restaurant_label')}</p>
  
             <h2 className="restaurant__title">
-              Gastronomic
+              {t('restaurant_title_line1')}
               <br />
-              Journey
+              {t('restaurant_title_line2')}
             </h2>
  
             <p className="restaurant__text">
-              Experience world-class cuisine in a refined
-              atmosphere inspired by Moroccan elegance.
+              {t('restaurant_text')}
             </p>
  
-            <Link To="/restaurant">
-              Reserve Table
+            <Link to="/restaurants" className="restaurant__btn-link">
+              {t('reserve_table')}
             </Link>
           </div>
  

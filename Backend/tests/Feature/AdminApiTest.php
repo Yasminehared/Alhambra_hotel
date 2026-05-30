@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
+use App\Enums\UserRole;
 use App\Models\Customer;
 use App\Models\Room;
 use App\Models\RoomType;
@@ -16,6 +18,20 @@ use Tests\TestCase;
 class AdminApiTest extends TestCase
 {
     use RefreshDatabase;
+
+    private User $admin;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        
+        $this->admin = User::create([
+            'name' => 'Admin User',
+            'email' => 'admin@example.com',
+            'password' => bcrypt('password'),
+            'role' => UserRole::ADMIN,
+        ]);
+    }
 
     private function createSetup(): array
     {
@@ -41,7 +57,7 @@ class AdminApiTest extends TestCase
     {
         [$roomType, $room] = $this->createSetup();
 
-        $response = $this->getJson('/api/rooms');
+        $response = $this->actingAs($this->admin)->getJson('/api/rooms');
 
         $response->assertStatus(200);
         $response->assertJsonFragment([
@@ -57,7 +73,7 @@ class AdminApiTest extends TestCase
     {
         [$roomType, $room] = $this->createSetup();
 
-        $response = $this->putJson("/api/rooms/{$room->id}", [
+        $response = $this->actingAs($this->admin)->putJson("/api/rooms/{$room->id}", [
             'status' => 'maintenance',
             'housekeeping_status' => 'dirty',
             'notes' => 'Needs painting.',
@@ -84,7 +100,7 @@ class AdminApiTest extends TestCase
             'blocks_room' => true,
         ]);
 
-        $response = $this->getJson('/api/maintenance-tickets');
+        $response = $this->actingAs($this->admin)->getJson('/api/maintenance-tickets');
 
         $response->assertStatus(200);
         $response->assertJsonFragment([
@@ -99,10 +115,10 @@ class AdminApiTest extends TestCase
     {
         [$roomType, $room] = $this->createSetup();
 
-        $response = $this->postJson('/api/maintenance-tickets', [
-            'room' => 201,
+        $response = $this->actingAs($this->admin)->postJson('/api/maintenance-tickets', [
+            'room' => (int)$room->room_number,
             'title' => 'Broken mirror',
-            'description' => 'Bathroom vanity mirror cracked.',
+            'description' => 'Mirror in bathroom is cracked',
             'priority' => 'low',
             'blocks_room' => false,
         ]);
@@ -121,14 +137,14 @@ class AdminApiTest extends TestCase
 
         $ticket = MaintenanceTicket::create([
             'room_id' => $room->id,
-            'title' => 'AC Leak',
-            'description' => 'Leaking in room 201',
+            'title' => 'Broken window',
+            'description' => 'Window is broken',
             'status' => 'pending',
-            'priority' => 'high',
+            'priority' => 'medium',
             'blocks_room' => true,
         ]);
 
-        $response = $this->putJson("/api/maintenance-tickets/{$ticket->id}", [
+        $response = $this->actingAs($this->admin)->putJson("/api/maintenance-tickets/{$ticket->id}", [
             'status' => 'in-progress',
             'assigned_to' => 'John Doe',
         ]);

@@ -13,7 +13,11 @@ import Chambres from "./hotel-alhambra/admin/chambre";
 import Suites from "./hotel-alhambra/hotel-service/suites";
 import Villas from "./hotel-alhambra/hotel-service/villas";
 import Home from "./hotel-alhambra/home";
+import AIHelper from "./hotel-alhambra/composant/AIHelper";
 import Stay from "./hotel-alhambra/hotel-service/stay";
+import SpaPage from "./hotel-alhambra/hotel-service/spa";
+import DoorIntro from "./hotel-alhambra/composant/DoorIntro";
+import LuxuryCursor from "./hotel-alhambra/composant/LuxuryCursor";
 
 // Admin console imports
 import DashboardConsole from "./hotel-alhambra/admin/dashboard";
@@ -73,7 +77,10 @@ function AdminLayout({ allowedRoles, children }) {
 function App() {
   return (
     <AuthProvider>
-      <Routes>
+      <DoorIntro>
+        <LuxuryCursor />
+        <AIHelper />
+        <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/about-us" element={<AboutUs />} />
@@ -83,7 +90,7 @@ function App() {
         <Route path="/booking" element={<BookingPage />} />
         <Route path="/room/:roomId" element={<RoomDetailPage />} />
         <Route path="/restaurants" element={<Restaurants />} />
-        <Route path="/:roomId" element={<BookingPage />} /> 
+        <Route path="/spa" element={<SpaPage />} />
         <Route path="/hotel-service/rooms" element={<Rooms />} />
         <Route path="/hotel-service/suites" element={<Suites />} />
         <Route path="/hotel-service/villas" element={<Villas />} />
@@ -142,7 +149,8 @@ function App() {
 
         {/* Catch-all Redirect */}
         <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+        </Routes>
+      </DoorIntro>
     </AuthProvider>
   );
 }
