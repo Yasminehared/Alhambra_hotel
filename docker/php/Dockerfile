@@ -8,8 +8,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libzip-dev \
     libpng-dev \
     libonig-dev \
+    libicu-dev \
     default-mysql-client \
-    && docker-php-ext-install -j$(nproc) pdo_mysql zip opcache bcmath \
+    && docker-php-ext-install -j$(nproc) pdo_mysql zip opcache bcmath intl \
     && pecl install redis \
     && docker-php-ext-enable redis \
     && apt-get clean \

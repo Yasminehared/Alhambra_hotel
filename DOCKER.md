@@ -97,6 +97,15 @@ docker compose down
 docker compose logs backend
 ```
 
+**Backend build failed (`composer install` exit code 2)**
+
+Pull latest code and rebuild. Filament was removed from dependencies; `ext-intl` is included in the PHP image.
+
+```powershell
+docker compose build backend --no-cache
+docker compose up -d
+```
+
 **Frontend build failed (`npm run build` exit code 1)**
 
 Usually ESLint warnings with `CI=true`. Pull latest `Hatim_branch` and rebuild:
