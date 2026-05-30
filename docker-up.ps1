@@ -7,6 +7,11 @@ if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
     exit 1
 }
 
+if (-not (Test-Path ".env.docker")) {
+    Copy-Item ".env.docker.example" ".env.docker"
+    Write-Host "Created .env.docker from example." -ForegroundColor Yellow
+}
+
 Write-Host "Building and starting Alhambra (first run may take 10+ minutes)..." -ForegroundColor Cyan
 docker compose up --build -d
 
