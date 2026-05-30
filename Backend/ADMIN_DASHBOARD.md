@@ -50,7 +50,20 @@ npm start
 
 Staff can also use the React admin at `/log-in` with the **same emails/passwords** (session API). The new Laravel dashboard at `/admin` is the recommended staff console.
 
-## First-time setup
+## Docker (recommended — less lag on Windows)
+
+Use the Docker stack instead of `npm start` + `php artisan serve`:
+
+```powershell
+cd ..   # project root (Alhambra_hotel-main)
+.\docker-up.ps1
+```
+
+→ http://localhost:8080/admin/login  
+
+See **DOCKER.md** for full instructions.
+
+## First-time setup (without Docker)
 
 ```bash
 cd Backend

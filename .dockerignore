@@ -1,0 +1,29 @@
+# Git & IDE
+.git
+.github
+.cursor
+*.md
+!Backend/README.md
+
+# Frontend — built inside Docker (skip huge bind mounts)
+Frontend/node_modules
+Frontend/build
+Frontend/.env*
+
+# Backend — vendor installed in image
+Backend/vendor
+Backend/node_modules
+Backend/.env
+Backend/storage/logs/*
+Backend/storage/framework/cache/data/*
+Backend/storage/framework/sessions/*
+Backend/storage/framework/views/*
+Backend/bootstrap/cache/*.php
+!Backend/bootstrap/cache/.gitignore
+Backend/database/database.sqlite
+
+# Misc
+**/npm-debug.log
+**/.DS_Store
+**/Thumbs.db
+Data/firebase-debug.log

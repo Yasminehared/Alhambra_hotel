@@ -1,0 +1,82 @@
+# Alhambra Hotel — production-style Docker stack (fast, no local npm/php lag)
+# Open http://localhost:8080 after: docker compose up --build -d
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: alhambra-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: alhambra
+      MYSQL_USER: alhambra
+      MYSQL_PASSWORD: alhambra
+      MYSQL_ROOT_PASSWORD: rootsecret
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-ualhambra", "-palhambra"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    container_name: alhambra-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 128mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: alhambra-backend
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - backend_storage:/var/www/html/storage
+    expose:
+      - "8080"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend/Dockerfile
+    container_name: alhambra-frontend
+    restart: unless-stopped
+    expose:
+      - "80"
+
+  gateway:
+    image: nginx:1.27-alpine
+    container_name: alhambra-gateway
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./docker/nginx/gateway.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  mysql_data:
+  redis_data:
+  backend_storage:
